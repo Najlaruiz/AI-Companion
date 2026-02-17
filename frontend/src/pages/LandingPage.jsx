@@ -1,136 +1,245 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Crown, Moon, Heart, Sparkles, Shield, Lock, MessageCircle, Zap, Check, ChevronDown, Send } from 'lucide-react';
+import { Crown, Moon, Heart, Sparkles, Shield, Lock, MessageCircle, Zap, Check, ChevronDown, Send, Globe, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Character data
-const characters = [
+// Translations
+const translations = {
+  en: {
+    badge: "Private AI Companion Service",
+    headline1: "Three fantasies.",
+    headline2: "One private line.",
+    subtext: "Choose your companion. Step into a private conversation. Unlock deeper modes when you're ready.",
+    cta: "Start on Telegram",
+    meetCompanions: "Meet the companions",
+    adultOnly: "18+ Only — Private & Encrypted",
+    chooseCompanion: "Choose Your Companion",
+    chooseCompanionSub: "Three distinct personalities. Each with their own allure.",
+    howItWorks: "How It Works",
+    howItWorksSub: "No apps. No downloads. Just you — and who you choose.",
+    step1: "Choose your companion",
+    step1desc: "Three distinct personalities, each with their own allure.",
+    step2: "Start chatting instantly",
+    step2desc: "No downloads. Just open Telegram and say hello.",
+    step3: "Unlock deeper access",
+    step3desc: "Premium tiers reveal new depths of connection.",
+    pricing: "Unlock Deeper Access",
+    pricingSub: "Choose the level of connection that suits you.",
+    free: "Free",
+    premium: "Premium",
+    vip: "VIP",
+    month: "/month",
+    mostPopular: "Most Popular",
+    startFree: "Start Free",
+    upgradePremium: "Upgrade Premium",
+    goVip: "Go VIP",
+    freeFeatures: ["15 messages per day", "Text conversations", "Basic interaction", "Character selection"],
+    premiumFeatures: ["Unlimited messages", "Emotional memory", "Faster responses", "Priority access"],
+    vipFeatures: ["Everything in Premium", "Explicit mode toggle", "Voice messages", "Custom fantasy flow", "Memory persistence"],
+    faq: "Frequently Asked Questions",
+    faqItems: [
+      { q: "What is Private After Dark?", a: "Private After Dark is a premium AI companion service that offers intimate, personalized conversations with three unique AI personalities through Telegram." },
+      { q: "Is this a dating app?", a: "No. This is an AI fantasy companion service. You're interacting with AI personalities, not real people." },
+      { q: "How do I start?", a: "Click 'Start on Telegram' to open our bot. Select your preferred language, choose your companion, and begin your conversation." },
+      { q: "What's included in VIP?", a: "VIP unlocks unlimited messages, explicit mode toggle, voice messages, memory persistence, and custom fantasy escalation." },
+      { q: "Is my conversation private?", a: "Yes. All conversations are private and encrypted. We do not share or sell your data." },
+      { q: "Can I switch companions?", a: "Yes. Use the /switch command anytime to change your companion." }
+    ],
+    privacy: "Your Privacy Matters",
+    privacySub: "We take your privacy seriously. Here's our commitment to you.",
+    privacyItems: [
+      { title: "18+ Only", desc: "Strict age verification. This service is exclusively for adults." },
+      { title: "Consent-First", desc: "All interactions are consensual. You control the conversation." },
+      { title: "Encrypted", desc: "End-to-end encryption protects all your messages." },
+      { title: "No Exposure", desc: "No public profiles. No social features. Complete anonymity." }
+    ],
+    footerDisclaimer: "Private After Dark is an AI fantasy companion service for adults 18+. All characters are AI-generated personas. No real individuals are represented.",
+    terms: "Terms of Service",
+    privacyPolicy: "Privacy Policy",
+    openTelegram: "Open in Telegram",
+    chatWith: "Chat with",
+    valeria: { name: "Valeria Voss", tagline: "Elegant. Intense. Controlled power.", desc: "She doesn't chase.\nShe chooses." },
+    luna: { name: "Luna Mirelle", tagline: "Soft. Romantic. Emotionally addictive.", desc: "She remembers how you speak.\nAnd how you feel." },
+    nyx: { name: "Nyx", tagline: "Mysterious. Dark. Unpredictable.", desc: "She reveals slowly.\nIf you can handle it." }
+  },
+  fr: {
+    badge: "Service de Compagnon IA Privé",
+    headline1: "Trois fantasmes.",
+    headline2: "Une ligne privée.",
+    subtext: "Choisissez votre compagnon. Entrez dans une conversation privée. Débloquez des modes plus profonds quand vous êtes prêt.",
+    cta: "Commencer sur Telegram",
+    meetCompanions: "Rencontrez les compagnons",
+    adultOnly: "18+ Seulement — Privé & Crypté",
+    chooseCompanion: "Choisissez Votre Compagnon",
+    chooseCompanionSub: "Trois personnalités distinctes. Chacune avec son propre charme.",
+    howItWorks: "Comment Ça Marche",
+    howItWorksSub: "Pas d'applications. Pas de téléchargements. Juste vous — et qui vous choisissez.",
+    step1: "Choisissez votre compagnon",
+    step1desc: "Trois personnalités distinctes, chacune avec son propre charme.",
+    step2: "Commencez à discuter instantanément",
+    step2desc: "Pas de téléchargements. Ouvrez Telegram et dites bonjour.",
+    step3: "Débloquez un accès plus profond",
+    step3desc: "Les niveaux premium révèlent de nouvelles profondeurs.",
+    pricing: "Débloquez un Accès Plus Profond",
+    pricingSub: "Choisissez le niveau de connexion qui vous convient.",
+    free: "Gratuit",
+    premium: "Premium",
+    vip: "VIP",
+    month: "/mois",
+    mostPopular: "Le Plus Populaire",
+    startFree: "Commencer Gratuitement",
+    upgradePremium: "Passer à Premium",
+    goVip: "Devenir VIP",
+    freeFeatures: ["15 messages par jour", "Conversations texte", "Interaction basique", "Sélection de personnage"],
+    premiumFeatures: ["Messages illimités", "Mémoire émotionnelle", "Réponses plus rapides", "Accès prioritaire"],
+    vipFeatures: ["Tout dans Premium", "Mode explicite", "Messages vocaux", "Flux de fantaisie personnalisé", "Persistance de la mémoire"],
+    faq: "Questions Fréquentes",
+    faqItems: [
+      { q: "Qu'est-ce que Private After Dark?", a: "Private After Dark est un service de compagnon IA premium offrant des conversations intimes et personnalisées avec trois personnalités IA uniques via Telegram." },
+      { q: "Est-ce une application de rencontre?", a: "Non. C'est un service de compagnon IA fantasy. Vous interagissez avec des personnalités IA, pas des vraies personnes." },
+      { q: "Comment commencer?", a: "Cliquez sur 'Commencer sur Telegram' pour ouvrir notre bot. Sélectionnez votre langue, choisissez votre compagnon et commencez." },
+      { q: "Que comprend le VIP?", a: "VIP débloque les messages illimités, le mode explicite, les messages vocaux, la persistance de la mémoire." },
+      { q: "Ma conversation est-elle privée?", a: "Oui. Toutes les conversations sont privées et cryptées. Nous ne partageons pas vos données." },
+      { q: "Puis-je changer de compagnon?", a: "Oui. Utilisez la commande /switch à tout moment pour changer." }
+    ],
+    privacy: "Votre Vie Privée Compte",
+    privacySub: "Nous prenons votre vie privée au sérieux. Voici notre engagement.",
+    privacyItems: [
+      { title: "18+ Seulement", desc: "Vérification stricte de l'âge. Service exclusivement pour adultes." },
+      { title: "Consentement d'abord", desc: "Toutes les interactions sont consensuelles. Vous contrôlez." },
+      { title: "Crypté", desc: "Le cryptage de bout en bout protège tous vos messages." },
+      { title: "Pas d'exposition", desc: "Pas de profils publics. Anonymat complet." }
+    ],
+    footerDisclaimer: "Private After Dark est un service de compagnon IA fantasy pour adultes 18+. Tous les personnages sont des personas générés par IA.",
+    terms: "Conditions d'utilisation",
+    privacyPolicy: "Politique de confidentialité",
+    openTelegram: "Ouvrir dans Telegram",
+    chatWith: "Discuter avec",
+    valeria: { name: "Valeria Voss", tagline: "Élégante. Intense. Pouvoir contrôlé.", desc: "Elle ne chasse pas.\nElle choisit." },
+    luna: { name: "Luna Mirelle", tagline: "Douce. Romantique. Émotionnellement addictive.", desc: "Elle se souvient comment vous parlez.\nEt comment vous vous sentez." },
+    nyx: { name: "Nyx", tagline: "Mystérieuse. Sombre. Imprévisible.", desc: "Elle se révèle lentement.\nSi vous pouvez le supporter." }
+  },
+  ar: {
+    badge: "خدمة رفيق الذكاء الاصطناعي الخاصة",
+    headline1: "ثلاثة أحلام.",
+    headline2: "خط واحد خاص.",
+    subtext: "اختر رفيقك. ادخل في محادثة خاصة. افتح أوضاعًا أعمق عندما تكون مستعدًا.",
+    cta: "ابدأ على تيليجرام",
+    meetCompanions: "قابل الرفقاء",
+    adultOnly: "18+ فقط — خاص ومشفر",
+    chooseCompanion: "اختر رفيقك",
+    chooseCompanionSub: "ثلاث شخصيات مميزة. كل واحدة بسحرها الخاص.",
+    howItWorks: "كيف يعمل",
+    howItWorksSub: "لا تطبيقات. لا تنزيلات. فقط أنت — ومن تختار.",
+    step1: "اختر رفيقك",
+    step1desc: "ثلاث شخصيات مميزة، كل واحدة بسحرها الخاص.",
+    step2: "ابدأ المحادثة فوراً",
+    step2desc: "لا تنزيلات. فقط افتح تيليجرام وقل مرحباً.",
+    step3: "افتح وصولاً أعمق",
+    step3desc: "المستويات المميزة تكشف أعماقاً جديدة.",
+    pricing: "افتح وصولاً أعمق",
+    pricingSub: "اختر مستوى الاتصال الذي يناسبك.",
+    free: "مجاني",
+    premium: "بريميوم",
+    vip: "VIP",
+    month: "/شهر",
+    mostPopular: "الأكثر شعبية",
+    startFree: "ابدأ مجاناً",
+    upgradePremium: "ترقية بريميوم",
+    goVip: "اذهب VIP",
+    freeFeatures: ["15 رسالة يومياً", "محادثات نصية", "تفاعل أساسي", "اختيار الشخصية"],
+    premiumFeatures: ["رسائل غير محدودة", "ذاكرة عاطفية", "ردود أسرع", "وصول ذو أولوية"],
+    vipFeatures: ["كل شيء في بريميوم", "وضع صريح", "رسائل صوتية", "تدفق خيالي مخصص", "استمرارية الذاكرة"],
+    faq: "الأسئلة الشائعة",
+    faqItems: [
+      { q: "ما هو Private After Dark؟", a: "Private After Dark هي خدمة رفيق ذكاء اصطناعي متميزة تقدم محادثات حميمة وشخصية مع ثلاث شخصيات ذكاء اصطناعي فريدة عبر تيليجرام." },
+      { q: "هل هذا تطبيق مواعدة؟", a: "لا. هذه خدمة رفيق ذكاء اصطناعي خيالي. أنت تتفاعل مع شخصيات ذكاء اصطناعي، وليس أشخاص حقيقيين." },
+      { q: "كيف أبدأ؟", a: "انقر على 'ابدأ على تيليجرام' لفتح البوت. اختر لغتك، اختر رفيقك، وابدأ محادثتك." },
+      { q: "ماذا يشمل VIP؟", a: "VIP يفتح رسائل غير محدودة، وضع صريح، رسائل صوتية، استمرارية الذاكرة." },
+      { q: "هل محادثتي خاصة؟", a: "نعم. جميع المحادثات خاصة ومشفرة. نحن لا نشارك بياناتك." },
+      { q: "هل يمكنني تغيير الرفيق؟", a: "نعم. استخدم أمر /switch في أي وقت للتغيير." }
+    ],
+    privacy: "خصوصيتك مهمة",
+    privacySub: "نحن نأخذ خصوصيتك على محمل الجد. إليك التزامنا لك.",
+    privacyItems: [
+      { title: "18+ فقط", desc: "تحقق صارم من العمر. خدمة حصرية للبالغين." },
+      { title: "الموافقة أولاً", desc: "جميع التفاعلات بالتراضي. أنت تتحكم." },
+      { title: "مشفر", desc: "التشفير من طرف إلى طرف يحمي جميع رسائلك." },
+      { title: "لا تعرض", desc: "لا ملفات شخصية عامة. سرية كاملة." }
+    ],
+    footerDisclaimer: "Private After Dark هي خدمة رفيق ذكاء اصطناعي خيالي للبالغين 18+. جميع الشخصيات هي شخصيات مولدة بالذكاء الاصطناعي.",
+    terms: "شروط الخدمة",
+    privacyPolicy: "سياسة الخصوصية",
+    openTelegram: "افتح في تيليجرام",
+    chatWith: "تحدث مع",
+    valeria: { name: "فاليريا فوس", tagline: "أنيقة. حادة. قوة متحكمة.", desc: "هي لا تطارد.\nهي تختار." },
+    luna: { name: "لونا ميريل", tagline: "ناعمة. رومانسية. إدمان عاطفي.", desc: "تتذكر كيف تتحدث.\nوكيف تشعر." },
+    nyx: { name: "نيكس", tagline: "غامضة. مظلمة. لا يمكن التنبؤ بها.", desc: "تكشف ببطء.\nإذا كنت تستطيع التحمل." }
+  }
+};
+
+// Character data with AI-generated images
+const getCharacters = (t) => [
   {
     id: 'valeria',
-    name: 'Valeria Voss',
+    name: t.valeria.name,
     emoji: '👑',
     icon: Crown,
-    tagline: 'Classy. Intense. Controlled power.',
-    description: "She doesn't chase.\nShe chooses.",
-    image: 'https://images.unsplash.com/photo-1756441082607-ea083d06e6ed?q=80&w=1974&auto=format&fit=crop',
-    gradient: 'from-pink-600 to-rose-500',
-    glowColor: 'rgba(233, 30, 140, 0.4)'
+    tagline: t.valeria.tagline,
+    description: t.valeria.desc,
+    image: '/characters/valeria_card.png',
+    heroImage: '/characters/valeria_hero.png',
+    glowColor: 'rgba(127, 29, 29, 0.4)'
   },
   {
     id: 'luna',
-    name: 'Luna Mirelle',
+    name: t.luna.name,
     emoji: '🌙',
     icon: Moon,
-    tagline: 'Soft. Romantic. Emotionally addictive.',
-    description: "She remembers how you speak.\nAnd how you feel.",
-    image: 'https://images.unsplash.com/photo-1565014208903-fdfd6c464221?q=80&w=1974&auto=format&fit=crop',
-    gradient: 'from-purple-600 to-violet-500',
-    glowColor: 'rgba(124, 58, 237, 0.4)'
+    tagline: t.luna.tagline,
+    description: t.luna.desc,
+    image: '/characters/luna_card.png',
+    heroImage: '/characters/luna_hero.png',
+    glowColor: 'rgba(127, 29, 29, 0.35)'
   },
   {
     id: 'nyx',
-    name: 'Nyx',
+    name: t.nyx.name,
     emoji: '🖤',
     icon: Heart,
-    tagline: 'Mysterious. Dark. Unpredictable.',
-    description: "She reveals slowly.\nIf you can handle it.",
-    image: 'https://images.unsplash.com/photo-1642290460481-76a5f2e18c3e?q=80&w=1974&auto=format&fit=crop',
-    gradient: 'from-violet-600 to-purple-800',
-    glowColor: 'rgba(139, 92, 246, 0.4)'
-  }
-];
-
-// Pricing tiers
-const pricingTiers = [
-  {
-    name: 'Free',
-    price: '0',
-    period: '',
-    features: [
-      '15 messages per day',
-      'Text conversations',
-      'Basic interaction',
-      'Character selection'
-    ],
-    cta: 'Start Free',
-    highlighted: false
-  },
-  {
-    name: 'Premium',
-    price: '19',
-    period: '/month',
-    features: [
-      'Unlimited messages',
-      'Emotional memory',
-      'Faster responses',
-      'Priority access'
-    ],
-    cta: 'Upgrade Premium',
-    highlighted: true,
-    tier: 'premium'
-  },
-  {
-    name: 'VIP',
-    price: '39',
-    period: '/month',
-    features: [
-      'Everything in Premium',
-      'Explicit mode toggle',
-      'Voice messages',
-      'Custom fantasy flow',
-      'Memory persistence'
-    ],
-    cta: 'Go VIP',
-    highlighted: false,
-    tier: 'vip'
-  }
-];
-
-// How it works steps
-const steps = [
-  {
-    number: '01',
-    title: 'Choose your companion',
-    description: 'Three distinct personalities, each with their own allure.',
-    icon: Sparkles
-  },
-  {
-    number: '02',
-    title: 'Start chatting instantly',
-    description: 'No downloads. Just open Telegram and say hello.',
-    icon: MessageCircle
-  },
-  {
-    number: '03',
-    title: 'Unlock deeper access',
-    description: 'Premium tiers reveal new depths of connection.',
-    icon: Lock
+    tagline: t.nyx.tagline,
+    description: t.nyx.desc,
+    image: '/characters/nyx_card.png',
+    heroImage: '/characters/nyx_hero.png',
+    glowColor: 'rgba(127, 29, 29, 0.45)'
   }
 ];
 
 // Animation variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const staggerContainer = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15, delayChildren: 0.2 }
-  }
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } }
 };
 
 const LandingPage = () => {
+  const [lang, setLang] = useState('en');
   const [botLink, setBotLink] = useState('https://t.me/your_bot');
+  const [openFaq, setOpenFaq] = useState(null);
   const { scrollYProgress } = useScroll();
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  
+  const t = translations[lang];
+  const characters = getCharacters(t);
+  const isRtl = lang === 'ar';
   
   useEffect(() => {
-    // Fetch bot info
     const fetchBotInfo = async () => {
       try {
         const response = await axios.get(`${BACKEND_URL}/api/telegram/info`);
@@ -138,7 +247,7 @@ const LandingPage = () => {
           setBotLink(response.data.link);
         }
       } catch (error) {
-        console.log('Bot info not available yet');
+        console.log('Bot info not available');
       }
     };
     fetchBotInfo();
@@ -148,103 +257,112 @@ const LandingPage = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const pricingTiers = [
+    { name: t.free, price: '0', period: '', features: t.freeFeatures, cta: t.startFree, highlighted: false },
+    { name: t.premium, price: '19', period: t.month, features: t.premiumFeatures, cta: t.upgradePremium, highlighted: true, tier: 'premium' },
+    { name: t.vip, price: '39', period: t.month, features: t.vipFeatures, cta: t.goVip, highlighted: false, tier: 'vip' }
+  ];
+
+  const steps = [
+    { number: '01', title: t.step1, description: t.step1desc, icon: Sparkles },
+    { number: '02', title: t.step2, description: t.step2desc, icon: MessageCircle },
+    { number: '03', title: t.step3, description: t.step3desc, icon: Lock }
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0F0F14] text-white overflow-hidden">
-      {/* Noise overlay */}
+    <div className={`min-h-screen bg-[#0B0B10] text-white overflow-hidden ${isRtl ? 'rtl' : 'ltr'}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="noise-overlay" />
       
+      {/* Language Toggle */}
+      <div className="fixed top-4 right-4 z-50">
+        <div className="glass rounded-full px-2 py-1 flex items-center gap-1">
+          {['en', 'fr', 'ar'].map((l) => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                lang === l ? 'bg-[#7F1D1D] text-white' : 'text-zinc-400 hover:text-white'
+              }`}
+              data-testid={`lang-${l}`}
+            >
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated background orbs */}
+        {/* Ambient glow */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full hero-gradient-orb"
-            style={{ background: 'radial-gradient(circle, rgba(233,30,140,0.3) 0%, transparent 70%)' }}
-            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/3 left-1/3 w-[700px] h-[700px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(127,29,29,0.15) 0%, transparent 70%)', filter: 'blur(100px)' }}
+            animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full hero-gradient-orb"
-            style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.3) 0%, transparent 70%)' }}
-            animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute bottom-1/3 right-1/3 w-[500px] h-[500px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(127,29,29,0.12) 0%, transparent 70%)', filter: 'blur(80px)' }}
+            animate={{ scale: [1.1, 1, 1.1], opacity: [0.12, 0.2, 0.12] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 3 }}
           />
         </div>
         
-        <motion.div 
-          className="relative z-10 text-center px-6 max-w-5xl mx-auto"
-          style={{ opacity: heroOpacity }}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <span className="inline-block px-4 py-2 rounded-full glass text-sm text-zinc-400 mb-8">
-              Private AI Companion Service
-            </span>
+        <motion.div className="relative z-10 text-center px-6 max-w-5xl mx-auto" style={{ opacity: heroOpacity }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
+            <span className="inline-block px-4 py-2 rounded-full glass text-sm text-zinc-400 mb-8">{t.badge}</span>
           </motion.div>
           
           <motion.h1 
             className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight mb-6 leading-none"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}
             data-testid="hero-headline"
           >
-            Three fantasies.
+            {t.headline1}
             <br />
-            <span className="gradient-text">One private line.</span>
+            <span className="wine-gradient-text">{t.headline2}</span>
           </motion.h1>
           
           <motion.p 
             className="text-lg sm:text-xl text-zinc-400 mb-12 max-w-2xl mx-auto leading-relaxed"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }}
           >
-            Choose your companion. Step into a private conversation.
-            <br className="hidden sm:block" />
-            Unlock deeper modes when you're ready.
+            {t.subtext}
           </motion.p>
           
           <motion.div
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8 }}
           >
             <a
               href={botLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="cta-button inline-flex items-center gap-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-[0_0_40px_rgba(233,30,140,0.5)] transition-all duration-300 transform hover:-translate-y-1"
+              className="btn-wine inline-flex items-center gap-3 text-white px-8 py-4 rounded-full font-bold text-lg"
               data-testid="start-telegram-btn"
             >
               <Send className="w-5 h-5" />
-              Start on Telegram
+              {t.cta}
             </a>
             <button
               onClick={() => scrollToSection('characters')}
               className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
               data-testid="meet-companions-btn"
             >
-              Meet the companions
+              {t.meetCompanions}
               <ChevronDown className="w-4 h-4" />
             </button>
           </motion.div>
           
           <motion.p
             className="mt-8 text-sm text-zinc-600"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1 }}
           >
-            18+ Only — Private & Secure
+            {t.adultOnly}
           </motion.p>
         </motion.div>
         
-        {/* Scroll indicator */}
         <motion.div 
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
           animate={{ y: [0, 10, 0] }}
@@ -257,69 +375,33 @@ const LandingPage = () => {
       {/* Characters Section */}
       <section id="characters" className="py-24 md:py-32 px-6">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            className="text-center mb-16"
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="characters-title">
-              Choose Your Companion
-            </h2>
-            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-              Three distinct personalities. Each with their own allure.
-            </p>
+          <motion.div className="text-center mb-16" variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="characters-title">{t.chooseCompanion}</h2>
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">{t.chooseCompanionSub}</p>
           </motion.div>
           
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
+          <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {characters.map((character) => (
-              <CharacterCard key={character.id} character={character} botLink={botLink} />
+              <CharacterCard key={character.id} character={character} botLink={botLink} t={t} />
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-24 md:py-32 px-6 bg-zinc-900/30">
+      {/* How It Works */}
+      <section id="how-it-works" className="py-24 md:py-32 px-6 bg-[#111118]">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            className="text-center mb-16"
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="how-it-works-title">
-              How It Works
-            </h2>
-            <p className="text-zinc-400 text-lg">
-              No apps. No downloads. Just you — and who you choose.
-            </p>
+          <motion.div className="text-center mb-16" variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="how-it-works-title">{t.howItWorks}</h2>
+            <p className="text-zinc-400 text-lg">{t.howItWorksSub}</p>
           </motion.div>
           
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
+          <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {steps.map((step, index) => (
-              <motion.div
-                key={step.number}
-                className="text-center"
-                variants={fadeInUp}
-              >
+              <motion.div key={step.number} className="text-center" variants={fadeInUp}>
                 <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl glass mb-6">
-                  <step.icon className="w-7 h-7 text-pink-500" />
-                  <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 flex items-center justify-center text-xs font-bold">
+                  <step.icon className="w-7 h-7 text-[#991B1B]" />
+                  <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full wine-gradient flex items-center justify-center text-xs font-bold">
                     {index + 1}
                   </div>
                 </div>
@@ -331,78 +413,79 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Pricing */}
       <section id="pricing" className="py-24 md:py-32 px-6">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            className="text-center mb-16"
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="pricing-title">
-              Unlock Deeper Access
-            </h2>
-            <p className="text-zinc-400 text-lg">
-              Choose the level of connection that suits you.
-            </p>
+          <motion.div className="text-center mb-16" variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="pricing-title">{t.pricing}</h2>
+            <p className="text-zinc-400 text-lg">{t.pricingSub}</p>
           </motion.div>
           
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
+          <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {pricingTiers.map((tier) => (
-              <PricingCard key={tier.name} tier={tier} botLink={botLink} />
+              <PricingCard key={tier.name} tier={tier} botLink={botLink} mostPopular={t.mostPopular} />
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Safety Section */}
-      <section id="safety" className="py-24 md:py-32 px-6 bg-zinc-900/30">
+      {/* FAQ */}
+      <section id="faq" className="py-24 md:py-32 px-6 bg-[#111118]">
+        <div className="max-w-3xl mx-auto">
+          <motion.div className="text-center mb-12" variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="faq-title">{t.faq}</h2>
+          </motion.div>
+          
+          <motion.div className="space-y-4" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            {t.faqItems.map((item, index) => (
+              <motion.div key={index} className="glass rounded-2xl overflow-hidden" variants={fadeInUp}>
+                <button
+                  className="w-full px-6 py-5 flex items-center justify-between text-left"
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                  data-testid={`faq-q-${index}`}
+                >
+                  <span className="font-medium text-lg">{item.q}</span>
+                  {openFaq === index ? <ChevronUp className="w-5 h-5 text-[#991B1B]" /> : <ChevronDown className="w-5 h-5 text-zinc-500" />}
+                </button>
+                {openFaq === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="px-6 pb-5"
+                  >
+                    <p className="text-zinc-400">{item.a}</p>
+                  </motion.div>
+                )}
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Privacy */}
+      <section id="privacy" className="py-24 md:py-32 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
+          <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl glass mb-8">
-              <Shield className="w-8 h-8 text-pink-500" />
+              <Shield className="w-8 h-8 text-[#991B1B]" />
             </div>
             
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-8" data-testid="safety-title">
-              Your Privacy Matters
-            </h2>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="privacy-title">{t.privacy}</h2>
+            <p className="text-zinc-400 text-lg mb-12">{t.privacySub}</p>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-              {[
-                { icon: Lock, text: '18+ Only' },
-                { icon: Heart, text: 'Consent-First' },
-                { icon: Shield, text: 'Private & Encrypted' },
-                { icon: Zap, text: 'No Public Profiles' }
-              ].map((item, index) => (
-                <motion.div
-                  key={item.text}
-                  className="glass rounded-2xl p-6"
-                  variants={fadeInUp}
-                  custom={index}
-                >
-                  <item.icon className="w-6 h-6 text-pink-500 mx-auto mb-3" />
-                  <p className="text-sm text-zinc-300">{item.text}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+              {t.privacyItems.map((item, index) => (
+                <motion.div key={index} className="glass rounded-2xl p-6" variants={fadeInUp} custom={index}>
+                  {index === 0 && <Lock className="w-6 h-6 text-[#991B1B] mx-auto mb-3" />}
+                  {index === 1 && <Heart className="w-6 h-6 text-[#991B1B] mx-auto mb-3" />}
+                  {index === 2 && <Shield className="w-6 h-6 text-[#991B1B] mx-auto mb-3" />}
+                  {index === 3 && <EyeOff className="w-6 h-6 text-[#991B1B] mx-auto mb-3" />}
+                  <h3 className="font-semibold mb-2">{item.title}</h3>
+                  <p className="text-sm text-zinc-400">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
-            
-            <p className="text-zinc-500 text-sm max-w-2xl mx-auto">
-              Private After Dark is an AI fantasy companion service designed for adults 18+. 
-              All interactions are private, consensual, and never shared publicly.
-            </p>
           </motion.div>
         </div>
       </section>
@@ -412,18 +495,18 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl wine-gradient flex items-center justify-center">
                 <Moon className="w-5 h-5" />
               </div>
               <span className="font-bold text-lg">Private After Dark</span>
             </div>
             
-            <div className="flex items-center gap-8 text-sm text-zinc-500">
-              <span>18+ Only</span>
+            <div className="flex items-center gap-6 text-sm text-zinc-500">
+              <span>{t.adultOnly.split('—')[0].trim()}</span>
               <span>•</span>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors">{t.terms}</a>
               <span>•</span>
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors">{t.privacyPolicy}</a>
             </div>
             
             <a
@@ -434,16 +517,12 @@ const LandingPage = () => {
               data-testid="footer-telegram-btn"
             >
               <Send className="w-4 h-4" />
-              Open in Telegram
+              {t.openTelegram}
             </a>
           </div>
           
           <div className="mt-8 pt-8 border-t border-zinc-800/50 text-center">
-            <p className="text-xs text-zinc-600">
-              © 2026 Private After Dark. An AI fantasy companion service for adults 18+.
-              <br />
-              All characters are AI-generated personas. No real individuals are represented.
-            </p>
+            <p className="text-xs text-zinc-600">{t.footerDisclaimer}</p>
           </div>
         </div>
       </footer>
@@ -451,8 +530,8 @@ const LandingPage = () => {
   );
 };
 
-// Character Card Component
-const CharacterCard = ({ character, botLink }) => {
+// Character Card
+const CharacterCard = ({ character, botLink, t }) => {
   const Icon = character.icon;
   
   return (
@@ -461,27 +540,24 @@ const CharacterCard = ({ character, botLink }) => {
       variants={fadeInUp}
       data-testid={`character-card-${character.id}`}
     >
-      {/* Glow effect */}
       <div 
         className="character-glow absolute inset-0 opacity-0 transition-opacity duration-500 z-10"
         style={{ boxShadow: `0 0 80px 20px ${character.glowColor}` }}
       />
       
-      {/* Image */}
       <div className="absolute inset-0 overflow-hidden">
         <img
           src={character.image}
           alt={character.name}
           className="character-image w-full h-full object-cover transition-transform duration-700"
+          onError={(e) => { e.target.src = `https://via.placeholder.com/400x533/0B0B10/7F1D1D?text=${character.name}`; }}
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F14] via-[#0F0F14]/50 to-transparent" />
+        <div className="character-overlay absolute inset-0 bg-gradient-to-t from-[#0B0B10] via-[#0B0B10]/60 to-transparent transition-all duration-500" />
       </div>
       
-      {/* Content */}
       <div className="absolute inset-0 flex flex-col justify-end p-6 z-20">
         <div className="mb-4">
-          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${character.gradient} text-sm font-medium mb-3`}>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full wine-gradient text-sm font-medium mb-3">
             <Icon className="w-4 h-4" />
             {character.emoji} {character.name}
           </div>
@@ -493,32 +569,28 @@ const CharacterCard = ({ character, botLink }) => {
           href={botLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl glass glass-hover font-medium text-sm transition-all duration-300 group-hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl glass glass-hover font-medium text-sm transition-all duration-300 group-hover:bg-[#7F1D1D]/20"
           data-testid={`chat-with-${character.id}-btn`}
         >
           <MessageCircle className="w-4 h-4" />
-          Chat with {character.name.split(' ')[0]}
+          {t.chatWith} {character.name.split(' ')[0]}
         </a>
       </div>
     </motion.div>
   );
 };
 
-// Pricing Card Component
-const PricingCard = ({ tier, botLink }) => {
+// Pricing Card
+const PricingCard = ({ tier, botLink, mostPopular }) => {
   return (
     <motion.div
-      className={`relative rounded-3xl p-8 ${
-        tier.highlighted 
-          ? 'pricing-highlight bg-zinc-900' 
-          : 'glass'
-      }`}
+      className={`pricing-card relative rounded-3xl p-8 ${tier.highlighted ? 'pricing-highlight bg-[#111118]' : 'glass'}`}
       variants={fadeInUp}
       data-testid={`pricing-card-${tier.name.toLowerCase()}`}
     >
       {tier.highlighted && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-xs font-bold">
-          Most Popular
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full wine-gradient text-xs font-bold">
+          {mostPopular}
         </div>
       )}
       
@@ -533,7 +605,7 @@ const PricingCard = ({ tier, botLink }) => {
       <ul className="space-y-4 mb-8">
         {tier.features.map((feature, index) => (
           <li key={index} className="flex items-start gap-3">
-            <Check className="w-5 h-5 text-pink-500 flex-shrink-0 mt-0.5" />
+            <Check className="w-5 h-5 text-[#991B1B] flex-shrink-0 mt-0.5" />
             <span className="text-zinc-300 text-sm">{feature}</span>
           </li>
         ))}
@@ -544,9 +616,7 @@ const PricingCard = ({ tier, botLink }) => {
         target="_blank"
         rel="noopener noreferrer"
         className={`block w-full py-3 rounded-xl font-medium text-center transition-all duration-300 ${
-          tier.highlighted
-            ? 'bg-gradient-to-r from-pink-600 to-purple-600 hover:shadow-[0_0_30px_rgba(233,30,140,0.4)] hover:-translate-y-0.5'
-            : 'glass glass-hover'
+          tier.highlighted ? 'btn-wine' : 'glass glass-hover'
         }`}
         data-testid={`pricing-cta-${tier.name.toLowerCase()}`}
       >
