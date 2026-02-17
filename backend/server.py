@@ -639,8 +639,33 @@ async def handle_telegram_update(update: dict):
         user = await check_and_reset_daily_limit(user)
         lang = user.get("language", "en")
         
-        # /start command - Show language selection first
-        if text == "/start":
+        # /start command - Handle referral codes and show language selection
+        if text == "/start" or text.startswith("/start ref_"):
+            referral_code = None
+            if text.startswith("/start ref_"):
+                referral_code = text.replace("/start ref_", "")
+            
+            # Process referral if new user
+            if referral_code and not user.get("referred_by"):
+                # Find referrer
+                referrer = await db.users.find_one({"referral_code": referral_code}, {"_id": 0})
+                if referrer and referrer["telegram_id"] != telegram_id:
+                    # Update new user with referral info
+                    await update_user(telegram_id, {"referred_by": referrer["telegram_id"]})
+                    # Give bonus to referrer
+                    new_bonus = referrer.get("bonus_messages", 0) + 5
+                    new_count = referrer.get("referral_count", 0) + 1
+                    await update_user(referrer["telegram_id"], {
+                        "bonus_messages": new_bonus,
+                        "referral_count": new_count
+                    })
+                    # Notify referrer
+                    referrer_lang = referrer.get("language", "en")
+                    await send_telegram_message(
+                        referrer["telegram_id"],
+                        t("referral_success", referrer_lang, bonus=new_bonus)
+                    )
+            
             await send_telegram_message(chat_id, t("choose_language", "en"), reply_markup={
                 "inline_keyboard": [
                     [{"text": "🇬🇧 English", "callback_data": "lang_en"}],
