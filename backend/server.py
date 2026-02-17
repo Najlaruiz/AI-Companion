@@ -743,7 +743,7 @@ async def handle_telegram_update(update: dict):
                     data = response.json()
                     if data.get("ok"):
                         bot_username = data.get("result", {}).get("username", bot_username)
-            except:
+            except Exception:
                 pass
             
             referral_code = user.get("referral_code", str(uuid.uuid4())[:8])
