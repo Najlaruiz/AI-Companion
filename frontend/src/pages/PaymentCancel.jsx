@@ -11,7 +11,7 @@ const PaymentCancel = () => {
         <div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full animate-breathe"
           style={{ 
-            background: 'radial-gradient(circle, rgba(127,29,29,0.1) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(109,40,217,0.1) 0%, transparent 70%)',
             filter: 'blur(80px)'
           }}
         />
@@ -49,7 +49,7 @@ const PaymentCancel = () => {
           </Link>
           <Link
             to="/#pricing"
-            className="btn-wine inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium"
+            className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium"
             data-testid="view-plans-btn"
           >
             View Plans

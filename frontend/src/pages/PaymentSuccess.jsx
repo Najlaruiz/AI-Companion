@@ -78,7 +78,7 @@ const PaymentSuccess = () => {
         {status === 'loading' && (
           <>
             <div className="w-20 h-20 rounded-full glass flex items-center justify-center mx-auto mb-8">
-              <Loader2 className="w-10 h-10 text-[#991B1B] animate-spin" />
+              <Loader2 className="w-10 h-10 text-[#8B5CF6] animate-spin" />
             </div>
             <h1 className="text-3xl font-bold mb-4" data-testid="payment-loading">Processing Payment...</h1>
             <p className="text-zinc-400">Please wait while we confirm your payment.</p>
@@ -100,10 +100,10 @@ const PaymentSuccess = () => {
               Your subscription is now active. Return to Telegram to enjoy your enhanced experience.
             </p>
             <a
-              href="https://t.me"
+              href="https://t.me/MidnightDesireAi_bot"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-wine inline-flex items-center gap-3 text-white px-8 py-4 rounded-full font-bold"
+              className="btn-primary inline-flex items-center gap-3 text-white px-8 py-4 rounded-full font-bold"
               data-testid="return-telegram-btn"
             >
               <Send className="w-5 h-5" />
@@ -114,7 +114,7 @@ const PaymentSuccess = () => {
 
         {(status === 'error' || status === 'timeout' || status === 'expired') && (
           <>
-            <div className="w-20 h-20 rounded-full bg-[#7F1D1D]/20 flex items-center justify-center mx-auto mb-8">
+            <div className="w-20 h-20 rounded-full bg-[#6D28D9]/20 flex items-center justify-center mx-auto mb-8">
               <span className="text-4xl">⚠️</span>
             </div>
             <h1 className="text-3xl font-bold mb-4" data-testid="payment-error">
