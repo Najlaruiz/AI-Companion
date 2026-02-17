@@ -1,0 +1,120 @@
+{
+  "identity": {
+    "name": "Private After Dark",
+    "mission": "Premium AI Fantasy Companion Service",
+    "tone": "Luxury, Seductive, Controlled, Mysterious, Exclusive",
+    "target_audience": "Adults 18+ seeking premium fantasy experiences"
+  },
+  "theme": {
+    "mode": "dark",
+    "primary_color": "#E91E8C",
+    "secondary_color": "#7C3AED",
+    "background_color": "#0F0F14",
+    "surface_color": "#18181B",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#A1A1AA",
+    "radius": "0.75rem"
+  },
+  "typography": {
+    "font_family_heading": "Manrope, sans-serif",
+    "font_family_body": "Inter, sans-serif",
+    "weights": {
+      "heading": "700",
+      "body": "400",
+      "light": "300"
+    },
+    "scale": {
+      "h1": "text-5xl md:text-7xl tracking-tight leading-none",
+      "h2": "text-3xl md:text-5xl tracking-tight",
+      "h3": "text-2xl md:text-3xl font-semibold",
+      "body": "text-base md:text-lg leading-relaxed text-zinc-400"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "default": "#0F0F14",
+        "paper": "#18181B"
+      },
+      "primary": {
+        "main": "#E91E8C",
+        "glow": "rgba(233, 30, 140, 0.5)"
+      },
+      "secondary": {
+        "main": "#7C3AED",
+        "glow": "rgba(124, 58, 237, 0.5)"
+      },
+      "gradient": {
+        "brand": "linear-gradient(135deg, #E91E8C 0%, #7C3AED 100%)",
+        "surface": "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.0) 100%)"
+      }
+    }
+  },
+  "layout": {
+    "grid_system": "grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8",
+    "container": "max-w-7xl mx-auto px-6 md:px-12",
+    "section_spacing": "py-24 md:py-32",
+    "card_style": "bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:border-white/20 transition-all duration-500 group relative overflow-hidden"
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-gradient-to-r from-pink-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-[0_0_30px_rgba(233,30,140,0.4)] transition-all duration-300 transform hover:-translate-y-1",
+      "secondary": "bg-white/5 border border-white/10 text-white px-8 py-4 rounded-full font-medium hover:bg-white/10 transition-all duration-300"
+    },
+    "cards": {
+      "character": "aspect-[3/4] relative overflow-hidden rounded-2xl group cursor-pointer",
+      "pricing": "p-8 rounded-3xl border border-white/10 bg-zinc-900/50 backdrop-blur-sm hover:border-pink-500/30 transition-colors"
+    },
+    "inputs": {
+      "style": "bg-white/5 border-b border-white/20 focus:border-pink-500 px-0 py-4 text-lg w-full focus:outline-none focus:ring-0 transition-colors placeholder:text-zinc-600"
+    }
+  },
+  "motion": {
+    "animations": {
+      "fade_in": "opacity-0 translate-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700",
+      "glow_pulse": "animate-pulse duration-[3000ms]",
+      "float": "animate-bounce duration-[6000ms]",
+      "shimmer": "bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] animate-shimmer"
+    },
+    "library": "framer-motion"
+  },
+  "image_urls": {
+    "hero_background": "https://images.unsplash.com/photo-1744165368525-fcd81465ef77?q=80&w=2070&auto=format&fit=crop",
+    "characters": {
+      "valeria": {
+        "url": "https://images.unsplash.com/photo-1756441082607-ea083d06e6ed?q=80&w=1974&auto=format&fit=crop",
+        "description": "Elegant, dominant, luxury - Woman in black dress"
+      },
+      "nyx": {
+        "url": "https://images.unsplash.com/photo-1642290460481-76a5f2e18c3e?q=80&w=1974&auto=format&fit=crop",
+        "description": "Mysterious, dark, enigmatic - Woman in hat/scarf"
+      },
+      "luna": {
+        "url": "https://images.unsplash.com/photo-1565014208903-fdfd6c464221?q=80&w=1974&auto=format&fit=crop",
+        "description": "Romantic, sensual, soft - Woman in red dress"
+      }
+    },
+    "textures": {
+      "noise": "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMGYwZjE0Ii8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMyMjIiLz4KPC9zdmc+')",
+      "gradient_blob": "https://images.unsplash.com/photo-1717106038354-1255c95aa082?q=80&w=2070&auto=format&fit=crop"
+    }
+  },
+  "instructions_to_main_agent": [
+    "INSTALL framer-motion IMMEDIATELY: `npm install framer-motion` or `yarn add framer-motion`",
+    "INSTALL fonts: `npm install @fontsource/manrope @fontsource/inter`",
+    "Import fonts in `src/index.js` or `src/App.js`",
+    "Configure Tailwind for Dark Mode default in `index.css`: Add `@layer base { body { @apply bg-[#0F0F14] text-white; } }`",
+    "Use `framer-motion` for all entrance animations (Hero text fade-in, Character cards staggering).",
+    "Implement a 'Breathing Glow' background effect using absolute positioned divs with blur-3xl and opacity-30 that slowly scale/pulse.",
+    "Ensure ALL interactive elements (Buttons, Cards, Inputs) have a `hover` state that increases brightness or adds a glow.",
+    "The 'Telegram Link' CTA must be prominent and use the brand gradient.",
+    "Do NOT use standard Shadcn cards. Build custom glassmorphism cards using Tailwind utility classes.",
+    "Footer must contain '18+ Only' and 'Terms of Service' links."
+  ],
+  "UNIVERSAL_GUIDELINES": [
+    "Do not use gradients for text unless it's a very large headline.",
+    "Ensure contrast ratio is at least 4.5:1 for body text (use Zinc-400 or Zinc-300 on dark bg).",
+    "Use 'tracking-tight' for all headings to give a modern premium feel.",
+    "Avoid 100% pure black (#000000). Use #0F0F14 or #18181B for depth."
+  ]
+}
