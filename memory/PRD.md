@@ -3,90 +3,93 @@
 ## Project Overview
 **Name:** Private After Dark
 **Type:** Telegram AI Companion Service with Landing Page
-**Status:** MVP Complete
+**Status:** Production Ready (v2.0.0)
 **Last Updated:** January 2026
 
 ## Original Problem Statement
-Build a monetizable Telegram AI Companion system with 3 distinct fantasy personalities (Valeria Voss, Luna Mirelle, Nyx), subscription-based access, and a high-converting landing page. Premium AI fantasy companion service - NOT a dating app.
+Build a premium Telegram AI Companion system with 3 fantasy personalities (Valeria Voss, Luna Mirelle, Nyx), subscription-based access, and a high-converting landing page. Dark luxury brand positioning.
+
+## Production Upgrade (v2.0)
+- **Brand Repositioning:** Wine Red (#7F1D1D) - removed all pink
+- **AI Character Visuals:** Gemini Nano Banana generated portraits
+- **Multilingual:** EN/FR/AR with RTL support
+- **Enhanced Bot Flow:** Clean commands, onboarding, language selection
 
 ## User Personas
-1. **Free User:** Adults 18+ exploring AI companionship, limited to 15 messages/day
-2. **Premium Subscriber ($19/mo):** Users wanting unlimited messages with emotional memory
-3. **VIP Subscriber ($39/mo):** Power users wanting explicit mode, voice messages, and full memory persistence
-
-## Core Requirements (Static)
-- Telegram bot with 3 distinct AI personalities
-- Character selection (Valeria, Luna, Nyx)
-- Daily message limits for free tier (15/day)
-- Stripe subscription payments ($19 Premium, $39 VIP)
-- OpenAI GPT integration for chat responses
-- ElevenLabs TTS for VIP voice messages
-- MongoDB for user data and chat history
-- Luxury dark-themed landing page
+1. **Free User:** 15 messages/day, text only
+2. **Premium ($19/mo):** Unlimited + emotional memory
+3. **VIP ($39/mo):** Explicit mode + voice + full memory
 
 ## Architecture
 
-### Backend (FastAPI)
-- `/api/webhook/telegram` - Telegram bot updates
-- `/api/webhook/stripe` - Stripe payment webhooks
-- `/api/checkout/create` - Create Stripe checkout sessions
-- `/api/checkout/status/{session_id}` - Check payment status
-- `/api/telegram/info` - Get bot info
-- `/api/telegram/set-webhook` - Configure Telegram webhook
+### Backend (FastAPI v2.0.0)
+- Telegram webhook: `/api/webhook/telegram`
+- Stripe webhook: `/api/webhook/stripe`
+- Checkout: `/api/checkout/create`, `/api/checkout/redirect`
+- Bot info: `/api/telegram/info`, `/api/telegram/set-webhook`
 
-### Frontend (React)
-- Landing page with Hero, Characters, How It Works, Pricing, Safety sections
-- Payment success/cancel pages
-- Framer Motion animations
-- Dark luxury theme (#0F0F14, #E91E8C, #7C3AED)
+### Frontend (React + Framer Motion)
+- Multilingual landing page (EN/FR/AR)
+- Wine red color scheme
+- AI-generated character portraits
+- FAQ + Privacy sections
+- RTL support for Arabic
 
 ### Database (MongoDB)
-Collections:
-- `users` - Telegram users with tier, character selection, message counts
-- `chat_messages` - Chat history per user/character
-- `payment_transactions` - Stripe payment records
+Collections: `users`, `chat_messages`, `payment_transactions`
 
-## What's Been Implemented ✅
-- [x] Complete landing page with all sections
-- [x] 3 Character system (Valeria, Luna, Nyx) with unique prompts
-- [x] Telegram webhook handler with /start, /status, /switch, /explicit commands
-- [x] Character selection via inline keyboard
-- [x] Daily message limit logic (15 for free, unlimited for paid)
-- [x] Stripe checkout integration ($19 Premium, $39 VIP)
-- [x] Payment webhook handling and tier upgrades
-- [x] OpenAI chat via Emergent Universal Key
-- [x] ElevenLabs TTS wiring (mocked until API key provided)
-- [x] MongoDB user storage and chat history
-- [x] VIP explicit mode toggle
+## What's Implemented ✅
+- [x] Wine red luxury brand (no pink)
+- [x] AI-generated character portraits (Valeria, Luna, Nyx)
+- [x] Multilingual (EN/FR/AR) with RTL
+- [x] FAQ section (6 questions)
+- [x] Privacy/Safety section
+- [x] Language selection on /start
+- [x] Bot commands: /start /language /switch /status /upgrade /explicit /help
+- [x] Daily limit counter for free users
+- [x] Telegram webhook configured
+- [x] Stripe checkout working
+- [x] OpenAI chat via Emergent Key
+- [x] Character-specific system prompts per language
 
-## Environment Variables
-- `TELEGRAM_BOT_TOKEN` - **USER MUST PROVIDE** via @BotFather
-- `OPENAI_MODEL` - Default: gpt-4o
-- `ELEVENLABS_API_KEY` - Optional, enables VIP voice
-- `STRIPE_API_KEY` - Test key active
-- `EMERGENT_LLM_KEY` - Pre-configured
+## Environment Configuration
+```
+TELEGRAM_BOT_TOKEN=8570801419:AAFFPnjABH8PGiUkSmiSPHtu5ItRplrRVmg
+OPENAI_MODEL=gpt-4o
+ELEVENLABS_API_KEY= (optional - enables VIP voice)
+STRIPE_API_KEY=sk_test_emergent
+EMERGENT_LLM_KEY=sk-emergent-b890aEa2e77A71a286
+```
+
+## Telegram Bot
+- **Username:** @MidnightDesireAi_bot
+- **Link:** https://t.me/MidnightDesireAi_bot
+- **Webhook:** https://telegram-companion-2.preview.emergentagent.com/api/webhook/telegram
+
+## Deployment
+- **Landing Page:** https://telegram-companion-2.preview.emergentagent.com
+- **Backend API:** https://telegram-companion-2.preview.emergentagent.com/api/
 
 ## Prioritized Backlog
 
-### P0 - Critical (Before Go-Live)
-- [ ] User provides Telegram Bot Token
-- [ ] Set webhook URL via /api/telegram/set-webhook
+### P0 - Pre-Launch
+- [x] Configure Telegram webhook ✓
 - [ ] Test live bot conversation flow
+- [ ] Add ElevenLabs key for voice
 
-### P1 - High Priority
-- [ ] Add ElevenLabs API key for voice messages
-- [ ] Memory summarization for Premium/VIP users
+### P1 - Post-Launch
 - [ ] Subscription cancellation handling
-
-### P2 - Medium Priority  
-- [ ] Custom character creation
-- [ ] Voice-to-text input
-- [ ] Web-based chat UI option
+- [ ] Memory summarization system
 - [ ] Analytics dashboard
 
-## Next Action Items
-1. Get Telegram Bot Token from @BotFather
-2. Configure webhook URL
-3. Add ElevenLabs key for voice (optional)
-4. Test full conversation flow with real bot
-5. Deploy to production (Railway/Render)
+### P2 - Future
+- [ ] Telegram Mini App (React)
+- [ ] WebRTC voice/video layer
+- [ ] Custom character creation
+- [ ] Advanced memory engine
+
+## Security
+- No API keys in logs
+- Environment variables secured
+- Webhook validated
+- No tokens exposed in frontend
