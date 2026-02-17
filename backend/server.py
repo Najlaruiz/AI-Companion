@@ -550,12 +550,12 @@ async def handle_telegram_update(update: dict):
             daily_limit = tier_config["daily_limit"]
             used = user.get("daily_message_count", 0)
             
-            status_text = f"📊 <b>Your Status</b>\n\n"
+            status_text = "📊 <b>Your Status</b>\n\n"
             status_text += f"Tier: <b>{tier.title()}</b>\n"
             status_text += f"Character: <b>{CHARACTER_PROMPTS.get(user.get('selected_character', 'valeria'), {}).get('name', 'Valeria')}</b>\n"
             
             if daily_limit == -1:
-                status_text += f"Messages: <b>Unlimited</b>\n"
+                status_text += "Messages: <b>Unlimited</b>\n"
             else:
                 status_text += f"Messages today: <b>{used}/{daily_limit}</b>\n"
             
