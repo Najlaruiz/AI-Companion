@@ -402,8 +402,13 @@ async def can_send_message(user: dict) -> tuple:
     daily_limit = tier_config["daily_limit"]
     if daily_limit == -1:
         return True, ""
-    if user.get("daily_message_count", 0) >= daily_limit:
-        return False, t("limit_reached", user.get("language", "en"), limit=daily_limit)
+    
+    # Add bonus messages to the limit
+    bonus = user.get("bonus_messages", 0)
+    effective_limit = daily_limit + bonus
+    
+    if user.get("daily_message_count", 0) >= effective_limit:
+        return False, t("limit_reached", user.get("language", "en"), limit=effective_limit)
     return True, ""
 
 async def increment_message_count(telegram_id: str):
