@@ -3,54 +3,60 @@
 ## Project Overview
 **Name:** Private After Dark
 **Type:** Telegram AI Companion Service with Landing Page
-**Status:** Production Ready (v2.0.0)
+**Status:** Production Ready (v2.1.0)
 **Last Updated:** January 2026
 
-## Original Problem Statement
-Build a premium Telegram AI Companion system with 3 fantasy personalities (Valeria Voss, Luna Mirelle, Nyx), subscription-based access, and a high-converting landing page. Dark luxury brand positioning.
-
-## Production Upgrade (v2.0)
-- **Brand Repositioning:** Wine Red (#7F1D1D) - removed all pink
-- **AI Character Visuals:** Gemini Nano Banana generated portraits
-- **Multilingual:** EN/FR/AR with RTL support
-- **Enhanced Bot Flow:** Clean commands, onboarding, language selection
+## Brand Direction
+**Theme:** Luxury + Dark + Modern Minimalism
+**Tone:** Premium. Controlled. Private. High-end.
+**Color System:**
+- Background: #0B0B10
+- Primary Accent: Deep Violet #6D28D9
+- Secondary: Light Violet #8B5CF6  
+- Gold Accent: #D4AF37 (subtle)
+- NO pink, NO red, NO cheap effects
 
 ## User Personas
-1. **Free User:** 15 messages/day, text only
+1. **Free User:** 15 messages/day (+bonus from referrals), text only
 2. **Premium ($19/mo):** Unlimited + emotional memory
 3. **VIP ($39/mo):** Explicit mode + voice + full memory
 
-## Architecture
+## Features Implemented ✅
 
-### Backend (FastAPI v2.0.0)
-- Telegram webhook: `/api/webhook/telegram`
-- Stripe webhook: `/api/webhook/stripe`
-- Checkout: `/api/checkout/create`, `/api/checkout/redirect`
-- Bot info: `/api/telegram/info`, `/api/telegram/set-webhook`
-
-### Frontend (React + Framer Motion)
-- Multilingual landing page (EN/FR/AR)
-- Wine red color scheme
-- AI-generated character portraits
-- FAQ + Privacy sections
-- RTL support for Arabic
-
-### Database (MongoDB)
-Collections: `users`, `chat_messages`, `payment_transactions`
-
-## What's Implemented ✅
-- [x] Wine red luxury brand (no pink)
-- [x] AI-generated character portraits (Valeria, Luna, Nyx)
-- [x] Multilingual (EN/FR/AR) with RTL
-- [x] FAQ section (6 questions)
+### Landing Page
+- [x] Deep violet color scheme
+- [x] Animated particles background
+- [x] Smooth scroll transitions
+- [x] Parallax on character cards
+- [x] Glow hover effects
+- [x] Micro-animations on CTAs
+- [x] Multilingual (EN/FR/AR + RTL)
+- [x] FAQ section
 - [x] Privacy/Safety section
-- [x] Language selection on /start
-- [x] Bot commands: /start /language /switch /status /upgrade /explicit /help
-- [x] Daily limit counter for free users
-- [x] Telegram webhook configured
-- [x] Stripe checkout working
-- [x] OpenAI chat via Emergent Key
-- [x] Character-specific system prompts per language
+- [x] Referral section
+
+### Character System
+- [x] Custom anime-style images (user-provided)
+- [x] Updated taglines:
+  - Valeria: "Classy. Controlled. Intensely selective."
+  - Luna: "Soft. Emotional. Deeply attached."
+  - Nyx: "Mysterious. Slow. Unpredictable."
+- [x] Consistent dark fantasy aesthetic
+
+### Referral System
+- [x] Unique referral code per user
+- [x] Deep link format: t.me/bot?start=ref_CODE
+- [x] +5 bonus messages per successful referral
+- [x] Referral counter in bot (/referral command)
+- [x] Notification to referrer on new signup
+- [x] Bonus messages add to daily limit
+
+### Telegram Bot
+- [x] Commands: /start /language /switch /status /upgrade /referral /explicit /help
+- [x] Language auto-detection from /start
+- [x] Referral code processing on signup
+- [x] Daily limit + bonus message tracking
+- [x] Character-specific multilingual prompts
 
 ## Environment Configuration
 ```
@@ -61,35 +67,27 @@ STRIPE_API_KEY=sk_test_emergent
 EMERGENT_LLM_KEY=sk-emergent-b890aEa2e77A71a286
 ```
 
-## Telegram Bot
+## Bot Details
 - **Username:** @MidnightDesireAi_bot
 - **Link:** https://t.me/MidnightDesireAi_bot
-- **Webhook:** https://telegram-companion-2.preview.emergentagent.com/api/webhook/telegram
+- **Webhook:** Configured and active
 
 ## Deployment
-- **Landing Page:** https://telegram-companion-2.preview.emergentagent.com
-- **Backend API:** https://telegram-companion-2.preview.emergentagent.com/api/
+- **Landing:** https://telegram-companion-2.preview.emergentagent.com
+- **API:** https://telegram-companion-2.preview.emergentagent.com/api/
 
 ## Prioritized Backlog
 
 ### P0 - Pre-Launch
-- [x] Configure Telegram webhook ✓
 - [ ] Test live bot conversation flow
 - [ ] Add ElevenLabs key for voice
 
 ### P1 - Post-Launch
-- [ ] Subscription cancellation handling
+- [ ] Referral analytics dashboard
 - [ ] Memory summarization system
-- [ ] Analytics dashboard
+- [ ] Subscription cancellation handling
 
 ### P2 - Future
 - [ ] Telegram Mini App (React)
 - [ ] WebRTC voice/video layer
 - [ ] Custom character creation
-- [ ] Advanced memory engine
-
-## Security
-- No API keys in logs
-- Environment variables secured
-- Webhook validated
-- No tokens exposed in frontend
