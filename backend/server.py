@@ -138,9 +138,23 @@ Three AI companions await you:
 /switch - Changer de compagnon
 /status - Voir votre statut
 /upgrade - Voir les options
+/referral - Obtenir votre lien de parrainage
 /explicit - Basculer le mode explicite (VIP)
 /help - Afficher ce message""",
         "free_counter": "\n\n📊 Messages: <b>{used}/{limit}</b>",
+        "bonus_counter": " (+{bonus} bonus)",
+        "referral_info": """🎁 <b>Votre Lien de Parrainage</b>
+
+Partagez ce lien avec vos amis:
+<code>https://t.me/{bot_username}?start=ref_{code}</code>
+
+✨ Vous gagnez <b>+5 messages bonus</b> pour chaque ami qui rejoint!
+
+📊 <b>Vos Stats:</b>
+• Amis parrainés: <b>{count}</b>
+• Messages bonus gagnés: <b>{bonus}</b>""",
+        "referral_welcome": "🎉 Vous avez été parrainé par un ami! Vous recevez tous les deux des messages bonus.",
+        "referral_success": "🎁 <b>Nouveau Parrainage!</b>\n\nQuelqu'un a rejoint avec votre lien. Vous avez gagné <b>+5 messages bonus</b>!\n\nTotal bonus: <b>{bonus}</b>",
         "onboarding": """🌙 <b>Bienvenue sur Private After Dark</b>
 
 Trois compagnons IA vous attendent:
