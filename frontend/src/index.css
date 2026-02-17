@@ -122,21 +122,169 @@
   }
 }
 
-@keyframes particle-float {
+@keyframes aurora-wave {
   0% {
-    transform: translateY(100vh) rotate(0deg);
+    transform: translateX(-100%) skewX(-15deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(200%) skewX(-15deg);
+    opacity: 0;
+  }
+}
+
+@keyframes light-pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+@keyframes wave-flow {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateX(50%) translateY(-20px) rotate(2deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes light-streak {
+  0% {
+    transform: translateX(-100%) translateY(100%) rotate(45deg);
     opacity: 0;
   }
   10% {
-    opacity: 1;
+    opacity: 0.6;
   }
   90% {
-    opacity: 1;
+    opacity: 0.6;
   }
   100% {
-    transform: translateY(-100vh) rotate(720deg);
+    transform: translateX(100%) translateY(-100%) rotate(45deg);
     opacity: 0;
   }
+}
+
+@keyframes orb-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translate(50px, -30px) scale(1.1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(20px, -50px) scale(0.9);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translate(-30px, -20px) scale(1.05);
+    opacity: 0.5;
+  }
+}
+
+@keyframes nebula-drift {
+  0% {
+    transform: rotate(0deg) scale(1);
+    filter: blur(80px);
+  }
+  33% {
+    transform: rotate(120deg) scale(1.1);
+    filter: blur(100px);
+  }
+  66% {
+    transform: rotate(240deg) scale(0.9);
+    filter: blur(90px);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    filter: blur(80px);
+  }
+}
+
+.animate-aurora {
+  animation: aurora-wave 8s ease-in-out infinite;
+}
+
+.animate-light-pulse {
+  animation: light-pulse 10s ease-in-out infinite;
+}
+
+.animate-wave-flow {
+  animation: wave-flow 15s ease-in-out infinite;
+}
+
+.animate-gradient-flow {
+  animation: gradient-flow 8s ease infinite;
+  background-size: 200% 200%;
+}
+
+.animate-light-streak {
+  animation: light-streak 12s ease-in-out infinite;
+}
+
+.animate-orb-float {
+  animation: orb-float 20s ease-in-out infinite;
+}
+
+.animate-nebula {
+  animation: nebula-drift 60s linear infinite;
+}
+
+/* Aurora background container */
+.aurora-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.aurora-layer {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+}
+
+/* Light beam effect */
+.light-beam {
+  position: absolute;
+  width: 2px;
+  height: 300px;
+  background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.5), transparent);
+  filter: blur(1px);
 }
 
 @keyframes shimmer {
