@@ -302,6 +302,11 @@ class TelegramUser(BaseModel):
     stripe_subscription_id: Optional[str] = None
     stripe_subscription_status: Optional[str] = None
     onboarded: bool = False
+    # Referral system
+    referral_code: str = Field(default_factory=lambda: str(uuid.uuid4())[:8])
+    referred_by: Optional[str] = None
+    referral_count: int = 0
+    bonus_messages: int = 0
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
