@@ -817,7 +817,12 @@ async def handle_telegram_update(update: dict):
         tier_config = TIERS.get(user.get("tier", "free"), TIERS["free"])
         if tier_config["daily_limit"] != -1:
             new_count = user.get("daily_message_count", 0) + 1
-            response += t("free_counter", lang, used=new_count, limit=tier_config["daily_limit"])
+            bonus = user.get("bonus_messages", 0)
+            effective_limit = tier_config["daily_limit"] + bonus
+            counter_text = t("free_counter", lang, used=new_count, limit=effective_limit)
+            if bonus > 0:
+                counter_text = counter_text.replace("</b>", t("bonus_counter", lang, bonus=bonus) + "</b>")
+            response += counter_text
         
         # Send voice if VIP
         if tier_config.get("voice_enabled") and ELEVENLABS_API_KEY:
