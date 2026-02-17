@@ -243,35 +243,94 @@ const staggerContainer = {
   visible: { opacity: 1, transition: { staggerChildren: 0.2, delayChildren: 0.1 } }
 };
 
-// Particle component
-const Particles = () => {
-  const particles = useMemo(() => {
-    return Array.from({ length: 30 }, (_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      size: Math.random() * 4 + 2,
-      duration: Math.random() * 20 + 15,
-      delay: Math.random() * 10,
-      opacity: Math.random() * 0.5 + 0.2
-    }));
-  }, []);
-
+// Aurora Background Component - Flowing light animation
+const AuroraBackground = () => {
   return (
-    <div className="particles-container">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="particle"
+    <div className="aurora-container">
+      {/* Main nebula layers */}
+      <div 
+        className="aurora-layer animate-nebula"
+        style={{
+          background: 'conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(109, 40, 217, 0.15) 60deg, transparent 120deg, rgba(139, 92, 246, 0.1) 180deg, transparent 240deg, rgba(212, 175, 55, 0.05) 300deg, transparent 360deg)',
+        }}
+      />
+      
+      {/* Floating orbs */}
+      <motion.div
+        className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(109, 40, 217, 0.2) 0%, transparent 60%)',
+          filter: 'blur(60px)',
+        }}
+        animate={{
+          x: [0, 100, 50, -50, 0],
+          y: [0, -50, -100, -30, 0],
+          scale: [1, 1.2, 0.9, 1.1, 1],
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+      />
+      
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 60%)',
+          filter: 'blur(50px)',
+        }}
+        animate={{
+          x: [0, -80, 30, 60, 0],
+          y: [0, 60, -40, 80, 0],
+          scale: [1, 0.9, 1.15, 1.05, 1],
+        }}
+        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+      />
+      
+      <motion.div
+        className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 60%)',
+          filter: 'blur(40px)',
+        }}
+        animate={{
+          x: [0, 60, -40, 80, 0],
+          y: [0, -80, 60, -40, 0],
+          scale: [1, 1.1, 0.95, 1.05, 1],
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 10 }}
+      />
+      
+      {/* Light streaks */}
+      {[...Array(5)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-[2px] h-[200px]"
           style={{
-            left: p.left,
-            width: p.size,
-            height: p.size,
-            animationDuration: `${p.duration}s`,
-            animationDelay: `${p.delay}s`,
-            opacity: p.opacity
+            left: `${20 + i * 15}%`,
+            top: '-10%',
+            background: `linear-gradient(to bottom, transparent, rgba(139, 92, 246, ${0.2 + i * 0.05}), transparent)`,
+            filter: 'blur(2px)',
+            transformOrigin: 'center',
+          }}
+          animate={{
+            y: ['0%', '150%'],
+            opacity: [0, 0.6, 0],
+            rotate: [45, 45],
+          }}
+          transition={{
+            duration: 8 + i * 2,
+            repeat: Infinity,
+            ease: "linear",
+            delay: i * 3,
           }}
         />
       ))}
+      
+      {/* Wave overlay */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-[400px] opacity-30"
+        style={{
+          background: 'linear-gradient(to top, rgba(109, 40, 217, 0.1), transparent)',
+        }}
+      />
     </div>
   );
 };
