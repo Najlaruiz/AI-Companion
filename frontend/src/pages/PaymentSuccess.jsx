@@ -42,7 +42,6 @@ const PaymentSuccess = () => {
           return;
         }
 
-        // Continue polling
         setTimeout(() => pollPaymentStatus(attempts + 1), pollInterval);
       } catch (error) {
         console.error('Error checking payment status:', error);
@@ -58,13 +57,13 @@ const PaymentSuccess = () => {
   }, [sessionId]);
 
   return (
-    <div className="min-h-screen bg-[#0F0F14] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#0B0B10] flex items-center justify-center px-6">
       {/* Background glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full animate-breathe"
           style={{ 
-            background: 'radial-gradient(circle, rgba(34,197,94,0.2) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)',
             filter: 'blur(80px)'
           }}
         />
@@ -79,7 +78,7 @@ const PaymentSuccess = () => {
         {status === 'loading' && (
           <>
             <div className="w-20 h-20 rounded-full glass flex items-center justify-center mx-auto mb-8">
-              <Loader2 className="w-10 h-10 text-pink-500 animate-spin" />
+              <Loader2 className="w-10 h-10 text-[#991B1B] animate-spin" />
             </div>
             <h1 className="text-3xl font-bold mb-4" data-testid="payment-loading">Processing Payment...</h1>
             <p className="text-zinc-400">Please wait while we confirm your payment.</p>
@@ -98,13 +97,13 @@ const PaymentSuccess = () => {
             </motion.div>
             <h1 className="text-3xl font-bold mb-4" data-testid="payment-success">Welcome to Premium!</h1>
             <p className="text-zinc-400 mb-8">
-              Your subscription is now active. Enjoy your enhanced experience with unlimited messages and exclusive features.
+              Your subscription is now active. Return to Telegram to enjoy your enhanced experience.
             </p>
             <a
               href="https://t.me"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold hover:shadow-[0_0_30px_rgba(233,30,140,0.4)] transition-all duration-300"
+              className="btn-wine inline-flex items-center gap-3 text-white px-8 py-4 rounded-full font-bold"
               data-testid="return-telegram-btn"
             >
               <Send className="w-5 h-5" />
@@ -115,7 +114,7 @@ const PaymentSuccess = () => {
 
         {(status === 'error' || status === 'timeout' || status === 'expired') && (
           <>
-            <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-8">
+            <div className="w-20 h-20 rounded-full bg-[#7F1D1D]/20 flex items-center justify-center mx-auto mb-8">
               <span className="text-4xl">⚠️</span>
             </div>
             <h1 className="text-3xl font-bold mb-4" data-testid="payment-error">

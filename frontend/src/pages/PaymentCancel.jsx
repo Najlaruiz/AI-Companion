@@ -5,13 +5,13 @@ import { Link } from 'react-router-dom';
 
 const PaymentCancel = () => {
   return (
-    <div className="min-h-screen bg-[#0F0F14] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#0B0B10] flex items-center justify-center px-6">
       {/* Background glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full animate-breathe"
           style={{ 
-            background: 'radial-gradient(circle, rgba(239,68,68,0.15) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(127,29,29,0.1) 0%, transparent 70%)',
             filter: 'blur(80px)'
           }}
         />
@@ -49,7 +49,7 @@ const PaymentCancel = () => {
           </Link>
           <Link
             to="/#pricing"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 font-medium hover:shadow-[0_0_30px_rgba(233,30,140,0.4)] transition-all duration-300"
+            className="btn-wine inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium"
             data-testid="view-plans-btn"
           >
             View Plans
