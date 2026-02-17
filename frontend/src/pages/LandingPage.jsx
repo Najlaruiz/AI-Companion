@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Crown, Moon, Heart, Sparkles, Shield, Lock, MessageCircle, Zap, Check, ChevronDown, Send, Globe, ChevronUp, Eye, EyeOff } from 'lucide-react';
+import { Crown, Moon, Heart, Sparkles, Shield, Lock, MessageCircle, Zap, Check, ChevronDown, Send, ChevronUp, EyeOff, Users, Gift } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -38,6 +38,12 @@ const translations = {
     freeFeatures: ["15 messages per day", "Text conversations", "Basic interaction", "Character selection"],
     premiumFeatures: ["Unlimited messages", "Emotional memory", "Faster responses", "Priority access"],
     vipFeatures: ["Everything in Premium", "Explicit mode toggle", "Voice messages", "Custom fantasy flow", "Memory persistence"],
+    referral: "Invite Friends. Unlock More.",
+    referralSub: "Share your unique link. Earn +5 bonus messages for each friend who joins.",
+    referralCta: "Get Your Referral Link",
+    referralBenefit1: "Share your unique link",
+    referralBenefit2: "+5 bonus messages per referral",
+    referralBenefit3: "Unlimited referral rewards",
     faq: "Frequently Asked Questions",
     faqItems: [
       { q: "What is Private After Dark?", a: "Private After Dark is a premium AI companion service that offers intimate, personalized conversations with three unique AI personalities through Telegram." },
@@ -60,9 +66,9 @@ const translations = {
     privacyPolicy: "Privacy Policy",
     openTelegram: "Open in Telegram",
     chatWith: "Chat with",
-    valeria: { name: "Valeria Voss", tagline: "Elegant. Intense. Controlled power.", desc: "She doesn't chase.\nShe chooses." },
-    luna: { name: "Luna Mirelle", tagline: "Soft. Romantic. Emotionally addictive.", desc: "She remembers how you speak.\nAnd how you feel." },
-    nyx: { name: "Nyx", tagline: "Mysterious. Dark. Unpredictable.", desc: "She reveals slowly.\nIf you can handle it." }
+    valeria: { name: "Valeria Voss", tagline: "Classy. Controlled. Intensely selective.", desc: "She doesn't chase.\nShe chooses." },
+    luna: { name: "Luna Mirelle", tagline: "Soft. Emotional. Deeply attached.", desc: "She remembers how you speak.\nAnd how you feel." },
+    nyx: { name: "Nyx", tagline: "Mysterious. Slow. Unpredictable.", desc: "She reveals slowly.\nIf you can handle it." }
   },
   fr: {
     badge: "Service de Compagnon IA Privé",
@@ -95,6 +101,12 @@ const translations = {
     freeFeatures: ["15 messages par jour", "Conversations texte", "Interaction basique", "Sélection de personnage"],
     premiumFeatures: ["Messages illimités", "Mémoire émotionnelle", "Réponses plus rapides", "Accès prioritaire"],
     vipFeatures: ["Tout dans Premium", "Mode explicite", "Messages vocaux", "Flux de fantaisie personnalisé", "Persistance de la mémoire"],
+    referral: "Invitez des Amis. Débloquez Plus.",
+    referralSub: "Partagez votre lien unique. Gagnez +5 messages bonus pour chaque ami qui rejoint.",
+    referralCta: "Obtenir Votre Lien de Parrainage",
+    referralBenefit1: "Partagez votre lien unique",
+    referralBenefit2: "+5 messages bonus par parrainage",
+    referralBenefit3: "Récompenses illimitées",
     faq: "Questions Fréquentes",
     faqItems: [
       { q: "Qu'est-ce que Private After Dark?", a: "Private After Dark est un service de compagnon IA premium offrant des conversations intimes et personnalisées avec trois personnalités IA uniques via Telegram." },
@@ -117,9 +129,9 @@ const translations = {
     privacyPolicy: "Politique de confidentialité",
     openTelegram: "Ouvrir dans Telegram",
     chatWith: "Discuter avec",
-    valeria: { name: "Valeria Voss", tagline: "Élégante. Intense. Pouvoir contrôlé.", desc: "Elle ne chasse pas.\nElle choisit." },
-    luna: { name: "Luna Mirelle", tagline: "Douce. Romantique. Émotionnellement addictive.", desc: "Elle se souvient comment vous parlez.\nEt comment vous vous sentez." },
-    nyx: { name: "Nyx", tagline: "Mystérieuse. Sombre. Imprévisible.", desc: "Elle se révèle lentement.\nSi vous pouvez le supporter." }
+    valeria: { name: "Valeria Voss", tagline: "Classe. Contrôlée. Intensément sélective.", desc: "Elle ne chasse pas.\nElle choisit." },
+    luna: { name: "Luna Mirelle", tagline: "Douce. Émotionnelle. Profondément attachée.", desc: "Elle se souvient comment vous parlez.\nEt comment vous vous sentez." },
+    nyx: { name: "Nyx", tagline: "Mystérieuse. Lente. Imprévisible.", desc: "Elle se révèle lentement.\nSi vous pouvez le supporter." }
   },
   ar: {
     badge: "خدمة رفيق الذكاء الاصطناعي الخاصة",
@@ -152,6 +164,12 @@ const translations = {
     freeFeatures: ["15 رسالة يومياً", "محادثات نصية", "تفاعل أساسي", "اختيار الشخصية"],
     premiumFeatures: ["رسائل غير محدودة", "ذاكرة عاطفية", "ردود أسرع", "وصول ذو أولوية"],
     vipFeatures: ["كل شيء في بريميوم", "وضع صريح", "رسائل صوتية", "تدفق خيالي مخصص", "استمرارية الذاكرة"],
+    referral: "ادعُ الأصدقاء. افتح المزيد.",
+    referralSub: "شارك رابطك الفريد. اكسب +5 رسائل مكافأة لكل صديق ينضم.",
+    referralCta: "احصل على رابط الإحالة",
+    referralBenefit1: "شارك رابطك الفريد",
+    referralBenefit2: "+5 رسائل مكافأة لكل إحالة",
+    referralBenefit3: "مكافآت غير محدودة",
     faq: "الأسئلة الشائعة",
     faqItems: [
       { q: "ما هو Private After Dark؟", a: "Private After Dark هي خدمة رفيق ذكاء اصطناعي متميزة تقدم محادثات حميمة وشخصية مع ثلاث شخصيات ذكاء اصطناعي فريدة عبر تيليجرام." },
@@ -174,13 +192,13 @@ const translations = {
     privacyPolicy: "سياسة الخصوصية",
     openTelegram: "افتح في تيليجرام",
     chatWith: "تحدث مع",
-    valeria: { name: "فاليريا فوس", tagline: "أنيقة. حادة. قوة متحكمة.", desc: "هي لا تطارد.\nهي تختار." },
-    luna: { name: "لونا ميريل", tagline: "ناعمة. رومانسية. إدمان عاطفي.", desc: "تتذكر كيف تتحدث.\nوكيف تشعر." },
-    nyx: { name: "نيكس", tagline: "غامضة. مظلمة. لا يمكن التنبؤ بها.", desc: "تكشف ببطء.\nإذا كنت تستطيع التحمل." }
+    valeria: { name: "فاليريا فوس", tagline: "أنيقة. متحكمة. انتقائية بشدة.", desc: "هي لا تطارد.\nهي تختار." },
+    luna: { name: "لونا ميريل", tagline: "ناعمة. عاطفية. متعلقة بعمق.", desc: "تتذكر كيف تتحدث.\nوكيف تشعر." },
+    nyx: { name: "نيكس", tagline: "غامضة. بطيئة. لا يمكن التنبؤ بها.", desc: "تكشف ببطء.\nإذا كنت تستطيع التحمل." }
   }
 };
 
-// Character data with AI-generated images
+// Character data with user-provided images
 const getCharacters = (t) => [
   {
     id: 'valeria',
@@ -189,9 +207,8 @@ const getCharacters = (t) => [
     icon: Crown,
     tagline: t.valeria.tagline,
     description: t.valeria.desc,
-    image: '/characters/valeria_card.png',
-    heroImage: '/characters/valeria_hero.png',
-    glowColor: 'rgba(127, 29, 29, 0.4)'
+    image: '/characters/valeria.jpg',
+    glowColor: 'rgba(109, 40, 217, 0.4)'
   },
   {
     id: 'luna',
@@ -200,9 +217,8 @@ const getCharacters = (t) => [
     icon: Moon,
     tagline: t.luna.tagline,
     description: t.luna.desc,
-    image: '/characters/luna_card.png',
-    heroImage: '/characters/luna_hero.png',
-    glowColor: 'rgba(127, 29, 29, 0.35)'
+    image: '/characters/luna.jpg',
+    glowColor: 'rgba(139, 92, 246, 0.4)'
   },
   {
     id: 'nyx',
@@ -211,26 +227,58 @@ const getCharacters = (t) => [
     icon: Heart,
     tagline: t.nyx.tagline,
     description: t.nyx.desc,
-    image: '/characters/nyx_card.png',
-    heroImage: '/characters/nyx_hero.png',
-    glowColor: 'rgba(127, 29, 29, 0.45)'
+    image: '/characters/nyx.jpg',
+    glowColor: 'rgba(212, 175, 55, 0.3)'
   }
 ];
 
 // Animation variants
 const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const staggerContainer = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } }
+  visible: { opacity: 1, transition: { staggerChildren: 0.2, delayChildren: 0.1 } }
+};
+
+// Particle component
+const Particles = () => {
+  const particles = useMemo(() => {
+    return Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      size: Math.random() * 4 + 2,
+      duration: Math.random() * 20 + 15,
+      delay: Math.random() * 10,
+      opacity: Math.random() * 0.5 + 0.2
+    }));
+  }, []);
+
+  return (
+    <div className="particles-container">
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="particle"
+          style={{
+            left: p.left,
+            width: p.size,
+            height: p.size,
+            animationDuration: `${p.duration}s`,
+            animationDelay: `${p.delay}s`,
+            opacity: p.opacity
+          }}
+        />
+      ))}
+    </div>
+  );
 };
 
 const LandingPage = () => {
   const [lang, setLang] = useState('en');
-  const [botLink, setBotLink] = useState('https://t.me/your_bot');
+  const [botLink, setBotLink] = useState('https://t.me/MidnightDesireAi_bot');
   const [openFaq, setOpenFaq] = useState(null);
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
@@ -272,6 +320,7 @@ const LandingPage = () => {
   return (
     <div className={`min-h-screen bg-[#0B0B10] text-white overflow-hidden ${isRtl ? 'rtl' : 'ltr'}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="noise-overlay" />
+      <Particles />
       
       {/* Language Toggle */}
       <div className="fixed top-4 right-4 z-50">
@@ -280,8 +329,8 @@ const LandingPage = () => {
             <button
               key={l}
               onClick={() => setLang(l)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                lang === l ? 'bg-[#7F1D1D] text-white' : 'text-zinc-400 hover:text-white'
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
+                lang === l ? 'bg-[#6D28D9] text-white' : 'text-zinc-400 hover:text-white'
               }`}
               data-testid={`lang-${l}`}
             >
@@ -293,19 +342,25 @@ const LandingPage = () => {
 
       {/* Hero Section */}
       <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Ambient glow */}
+        {/* Animated background orbs */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            className="absolute top-1/3 left-1/3 w-[700px] h-[700px] rounded-full"
-            style={{ background: 'radial-gradient(circle, rgba(127,29,29,0.15) 0%, transparent 70%)', filter: 'blur(100px)' }}
-            animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 left-1/4 w-[700px] h-[700px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(109,40,217,0.12) 0%, transparent 70%)', filter: 'blur(100px)' }}
+            animate={{ scale: [1, 1.15, 1], x: [0, 30, 0], y: [0, -20, 0] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute bottom-1/3 right-1/3 w-[500px] h-[500px] rounded-full"
-            style={{ background: 'radial-gradient(circle, rgba(127,29,29,0.12) 0%, transparent 70%)', filter: 'blur(80px)' }}
-            animate={{ scale: [1.1, 1, 1.1], opacity: [0.12, 0.2, 0.12] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+            className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)', filter: 'blur(80px)' }}
+            animate={{ scale: [1.1, 1, 1.1], x: [0, -20, 0], y: [0, 30, 0] }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+          />
+          <motion.div
+            className="absolute top-1/2 right-1/3 w-[300px] h-[300px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)', filter: 'blur(60px)' }}
+            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 5 }}
           />
         </div>
         
@@ -321,7 +376,7 @@ const LandingPage = () => {
           >
             {t.headline1}
             <br />
-            <span className="wine-gradient-text">{t.headline2}</span>
+            <span className="violet-gradient-text">{t.headline2}</span>
           </motion.h1>
           
           <motion.p 
@@ -339,7 +394,7 @@ const LandingPage = () => {
               href={botLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-wine inline-flex items-center gap-3 text-white px-8 py-4 rounded-full font-bold text-lg"
+              className="btn-primary inline-flex items-center gap-3 text-white px-8 py-4 rounded-full font-bold text-lg"
               data-testid="start-telegram-btn"
             >
               <Send className="w-5 h-5" />
@@ -347,7 +402,7 @@ const LandingPage = () => {
             </a>
             <button
               onClick={() => scrollToSection('characters')}
-              className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+              className="btn-secondary inline-flex items-center gap-2 px-6 py-3 rounded-full text-zinc-300"
               data-testid="meet-companions-btn"
             >
               {t.meetCompanions}
@@ -380,9 +435,9 @@ const LandingPage = () => {
             <p className="text-zinc-400 text-lg max-w-2xl mx-auto">{t.chooseCompanionSub}</p>
           </motion.div>
           
-          <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            {characters.map((character) => (
-              <CharacterCard key={character.id} character={character} botLink={botLink} t={t} />
+          <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            {characters.map((character, index) => (
+              <CharacterCard key={character.id} character={character} botLink={botLink} t={t} index={index} />
             ))}
           </motion.div>
         </div>
@@ -398,10 +453,10 @@ const LandingPage = () => {
           
           <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {steps.map((step, index) => (
-              <motion.div key={step.number} className="text-center" variants={fadeInUp}>
-                <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl glass mb-6">
-                  <step.icon className="w-7 h-7 text-[#991B1B]" />
-                  <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full wine-gradient flex items-center justify-center text-xs font-bold">
+              <motion.div key={step.number} className="text-center group" variants={fadeInUp}>
+                <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl glass glass-hover mb-6">
+                  <step.icon className="w-7 h-7 text-[#8B5CF6] group-hover:animate-subtle-bounce" />
+                  <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full violet-gradient flex items-center justify-center text-xs font-bold">
                     {index + 1}
                   </div>
                 </div>
@@ -413,8 +468,57 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Referral Section */}
+      <section id="referral" className="py-24 md:py-32 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.div 
+            className="referral-gradient rounded-3xl p-8 md:p-12 border border-[#6D28D9]/20"
+            variants={fadeInUp} 
+            initial="hidden" 
+            whileInView="visible" 
+            viewport={{ once: true }}
+          >
+            <div className="text-center">
+              <motion.div 
+                className="inline-flex items-center justify-center w-16 h-16 rounded-2xl violet-gradient mb-6"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <Gift className="w-8 h-8 text-white" />
+              </motion.div>
+              
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="referral-title">
+                {t.referral}
+              </h2>
+              <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">{t.referralSub}</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {[t.referralBenefit1, t.referralBenefit2, t.referralBenefit3].map((benefit, i) => (
+                  <div key={i} className="flex items-center gap-3 justify-center md:justify-start">
+                    <div className="w-8 h-8 rounded-full bg-[#6D28D9]/20 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-4 h-4 text-[#8B5CF6]" />
+                    </div>
+                    <span className="text-zinc-300">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <a
+                href={botLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary inline-flex items-center gap-3 text-white px-8 py-4 rounded-full font-bold"
+                data-testid="referral-cta"
+              >
+                <Users className="w-5 h-5" />
+                {t.referralCta}
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Pricing */}
-      <section id="pricing" className="py-24 md:py-32 px-6">
+      <section id="pricing" className="py-24 md:py-32 px-6 bg-[#111118]">
         <div className="max-w-6xl mx-auto">
           <motion.div className="text-center mb-16" variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="pricing-title">{t.pricing}</h2>
@@ -430,7 +534,7 @@ const LandingPage = () => {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-24 md:py-32 px-6 bg-[#111118]">
+      <section id="faq" className="py-24 md:py-32 px-6">
         <div className="max-w-3xl mx-auto">
           <motion.div className="text-center mb-12" variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="faq-title">{t.faq}</h2>
@@ -440,12 +544,12 @@ const LandingPage = () => {
             {t.faqItems.map((item, index) => (
               <motion.div key={index} className="glass rounded-2xl overflow-hidden" variants={fadeInUp}>
                 <button
-                  className="w-full px-6 py-5 flex items-center justify-between text-left"
+                  className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
                   data-testid={`faq-q-${index}`}
                 >
                   <span className="font-medium text-lg">{item.q}</span>
-                  {openFaq === index ? <ChevronUp className="w-5 h-5 text-[#991B1B]" /> : <ChevronDown className="w-5 h-5 text-zinc-500" />}
+                  {openFaq === index ? <ChevronUp className="w-5 h-5 text-[#8B5CF6]" /> : <ChevronDown className="w-5 h-5 text-zinc-500" />}
                 </button>
                 {openFaq === index && (
                   <motion.div
@@ -464,11 +568,11 @@ const LandingPage = () => {
       </section>
 
       {/* Privacy */}
-      <section id="privacy" className="py-24 md:py-32 px-6">
+      <section id="privacy" className="py-24 md:py-32 px-6 bg-[#111118]">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl glass mb-8">
-              <Shield className="w-8 h-8 text-[#991B1B]" />
+              <Shield className="w-8 h-8 text-[#8B5CF6]" />
             </div>
             
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4" data-testid="privacy-title">{t.privacy}</h2>
@@ -476,11 +580,11 @@ const LandingPage = () => {
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
               {t.privacyItems.map((item, index) => (
-                <motion.div key={index} className="glass rounded-2xl p-6" variants={fadeInUp} custom={index}>
-                  {index === 0 && <Lock className="w-6 h-6 text-[#991B1B] mx-auto mb-3" />}
-                  {index === 1 && <Heart className="w-6 h-6 text-[#991B1B] mx-auto mb-3" />}
-                  {index === 2 && <Shield className="w-6 h-6 text-[#991B1B] mx-auto mb-3" />}
-                  {index === 3 && <EyeOff className="w-6 h-6 text-[#991B1B] mx-auto mb-3" />}
+                <motion.div key={index} className="glass glass-hover rounded-2xl p-6" variants={fadeInUp} custom={index}>
+                  {index === 0 && <Lock className="w-6 h-6 text-[#8B5CF6] mx-auto mb-3" />}
+                  {index === 1 && <Heart className="w-6 h-6 text-[#8B5CF6] mx-auto mb-3" />}
+                  {index === 2 && <Shield className="w-6 h-6 text-[#8B5CF6] mx-auto mb-3" />}
+                  {index === 3 && <EyeOff className="w-6 h-6 text-[#8B5CF6] mx-auto mb-3" />}
                   <h3 className="font-semibold mb-2">{item.title}</h3>
                   <p className="text-sm text-zinc-400">{item.desc}</p>
                 </motion.div>
@@ -495,7 +599,7 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl wine-gradient flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl violet-gradient flex items-center justify-center">
                 <Moon className="w-5 h-5" />
               </div>
               <span className="font-bold text-lg">Private After Dark</span>
@@ -530,34 +634,41 @@ const LandingPage = () => {
   );
 };
 
-// Character Card
-const CharacterCard = ({ character, botLink, t }) => {
+// Character Card with parallax effect
+const CharacterCard = ({ character, botLink, t, index }) => {
   const Icon = character.icon;
   
   return (
     <motion.div
       className="character-card relative aspect-[3/4] rounded-2xl overflow-hidden group cursor-pointer"
       variants={fadeInUp}
+      whileHover={{ y: -12 }}
       data-testid={`character-card-${character.id}`}
     >
+      {/* Gradient border on hover */}
+      <div className="card-border rounded-2xl" />
+      
+      {/* Glow effect */}
       <div 
-        className="character-glow absolute inset-0 opacity-0 transition-opacity duration-500 z-10"
-        style={{ boxShadow: `0 0 80px 20px ${character.glowColor}` }}
+        className="character-glow absolute inset-0 opacity-0 transition-opacity duration-700 z-10 pointer-events-none"
+        style={{ boxShadow: `0 0 100px 30px ${character.glowColor}` }}
       />
       
-      <div className="absolute inset-0 overflow-hidden">
-        <img
+      {/* Image */}
+      <div className="absolute inset-0 overflow-hidden rounded-2xl">
+        <motion.img
           src={character.image}
           alt={character.name}
-          className="character-image w-full h-full object-cover transition-transform duration-700"
-          onError={(e) => { e.target.src = `https://via.placeholder.com/400x533/0B0B10/7F1D1D?text=${character.name}`; }}
+          className="character-image w-full h-full object-cover transition-all duration-700"
+          style={{ objectPosition: 'center top' }}
         />
-        <div className="character-overlay absolute inset-0 bg-gradient-to-t from-[#0B0B10] via-[#0B0B10]/60 to-transparent transition-all duration-500" />
+        <div className="character-overlay absolute inset-0 bg-gradient-to-t from-[#0B0B10] via-[#0B0B10]/50 to-transparent transition-all duration-500" />
       </div>
       
+      {/* Content */}
       <div className="absolute inset-0 flex flex-col justify-end p-6 z-20">
         <div className="mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full wine-gradient text-sm font-medium mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full violet-gradient text-sm font-medium mb-3">
             <Icon className="w-4 h-4" />
             {character.emoji} {character.name}
           </div>
@@ -569,7 +680,7 @@ const CharacterCard = ({ character, botLink, t }) => {
           href={botLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl glass glass-hover font-medium text-sm transition-all duration-300 group-hover:bg-[#7F1D1D]/20"
+          className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl glass glass-hover font-medium text-sm transition-all duration-300"
           data-testid={`chat-with-${character.id}-btn`}
         >
           <MessageCircle className="w-4 h-4" />
@@ -586,10 +697,11 @@ const PricingCard = ({ tier, botLink, mostPopular }) => {
     <motion.div
       className={`pricing-card relative rounded-3xl p-8 ${tier.highlighted ? 'pricing-highlight bg-[#111118]' : 'glass'}`}
       variants={fadeInUp}
+      whileHover={{ y: -8 }}
       data-testid={`pricing-card-${tier.name.toLowerCase()}`}
     >
       {tier.highlighted && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full wine-gradient text-xs font-bold">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full violet-gradient text-xs font-bold">
           {mostPopular}
         </div>
       )}
@@ -605,7 +717,7 @@ const PricingCard = ({ tier, botLink, mostPopular }) => {
       <ul className="space-y-4 mb-8">
         {tier.features.map((feature, index) => (
           <li key={index} className="flex items-start gap-3">
-            <Check className="w-5 h-5 text-[#991B1B] flex-shrink-0 mt-0.5" />
+            <Check className="w-5 h-5 text-[#8B5CF6] flex-shrink-0 mt-0.5" />
             <span className="text-zinc-300 text-sm">{feature}</span>
           </li>
         ))}
@@ -616,7 +728,7 @@ const PricingCard = ({ tier, botLink, mostPopular }) => {
         target="_blank"
         rel="noopener noreferrer"
         className={`block w-full py-3 rounded-xl font-medium text-center transition-all duration-300 ${
-          tier.highlighted ? 'btn-wine' : 'glass glass-hover'
+          tier.highlighted ? 'btn-primary' : 'glass glass-hover'
         }`}
         data-testid={`pricing-cta-${tier.name.toLowerCase()}`}
       >
