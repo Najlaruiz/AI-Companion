@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Crown, Moon, Heart, Sparkles, Shield, Lock, MessageCircle, Zap, Check, ChevronDown, Send, ChevronUp, EyeOff, Users, Gift } from 'lucide-react';
 import axios from 'axios';
