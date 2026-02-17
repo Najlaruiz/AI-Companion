@@ -728,6 +728,31 @@ async def handle_telegram_update(update: dict):
             })
             return
         
+        # /referral command
+        if text == "/referral":
+            # Get bot username for the link
+            bot_username = "MidnightDesireAi_bot"
+            try:
+                async with httpx.AsyncClient() as http_client:
+                    response = await http_client.get(f"{TELEGRAM_API}/getMe")
+                    data = response.json()
+                    if data.get("ok"):
+                        bot_username = data.get("result", {}).get("username", bot_username)
+            except:
+                pass
+            
+            referral_code = user.get("referral_code", str(uuid.uuid4())[:8])
+            if not user.get("referral_code"):
+                await update_user(telegram_id, {"referral_code": referral_code})
+            
+            await send_telegram_message(chat_id, t("referral_info", lang, 
+                bot_username=bot_username,
+                code=referral_code,
+                count=user.get("referral_count", 0),
+                bonus=user.get("bonus_messages", 0)
+            ))
+            return
+        
         # /explicit command
         if text == "/explicit":
             if user.get("tier") != "vip":
