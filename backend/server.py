@@ -78,9 +78,23 @@ TRANSLATIONS = {
 /switch - Change companion
 /status - View your status
 /upgrade - See upgrade options
+/referral - Get your referral link
 /explicit - Toggle explicit mode (VIP)
 /help - Show this message""",
         "free_counter": "\n\n📊 Messages: <b>{used}/{limit}</b>",
+        "bonus_counter": " (+{bonus} bonus)",
+        "referral_info": """🎁 <b>Your Referral Link</b>
+
+Share this link with friends:
+<code>https://t.me/{bot_username}?start=ref_{code}</code>
+
+✨ You earn <b>+5 bonus messages</b> for each friend who joins!
+
+📊 <b>Your Stats:</b>
+• Friends referred: <b>{count}</b>
+• Bonus messages earned: <b>{bonus}</b>""",
+        "referral_welcome": "🎉 You were referred by a friend! You both get bonus messages.",
+        "referral_success": "🎁 <b>New Referral!</b>\n\nSomeone joined using your link. You earned <b>+5 bonus messages</b>!\n\nTotal bonus: <b>{bonus}</b>",
         "onboarding": """🌙 <b>Welcome to Private After Dark</b>
 
 Three AI companions await you:
