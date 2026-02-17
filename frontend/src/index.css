@@ -512,26 +512,7 @@
   z-index: -1;
 }
 
-/* Particle container */
-.particles-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: radial-gradient(circle, rgba(109, 40, 217, 0.8) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: particle-float linear infinite;
-}
+/* Particle/removed - replaced with aurora */
 
 /* Noise overlay */
 .noise-overlay {
