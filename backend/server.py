@@ -435,7 +435,11 @@ async def send_telegram_message(chat_id: str, text: str, reply_markup: dict = No
     async with httpx.AsyncClient() as http_client:
         try:
             response = await http_client.post(f"{TELEGRAM_API}/sendMessage", json=payload)
-            return response.json()
+            result = response.json()
+            logger.info(f"Telegram sendMessage response: {result}")
+            if not result.get("ok"):
+                logger.error(f"Telegram API error: {result}")
+            return result
         except Exception as e:
             logger.error(f"Error sending Telegram message: {e}")
             return None
