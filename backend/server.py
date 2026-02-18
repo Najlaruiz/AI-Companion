@@ -371,6 +371,8 @@ def detect_language(lang_code: str) -> str:
 async def update_user(telegram_id: str, updates: dict):
     updates["updated_at"] = datetime.now(timezone.utc).isoformat()
     updates["last_active"] = datetime.now(timezone.utc).isoformat()
+    # Reset reactivation attempts when user is active
+    updates["reactivation_attempts"] = 0
     await db.users.update_one({"telegram_id": telegram_id}, {"$set": updates})
 
 async def can_send_message(user: dict) -> tuple:
