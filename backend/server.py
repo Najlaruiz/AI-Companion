@@ -1344,6 +1344,56 @@ async def set_telegram_webhook(request: Request):
         response = await http_client.post(f"{TELEGRAM_API}/setWebhook", json={"url": webhook_url})
         return response.json()
 
+# ============ REACTIVATION ENDPOINTS ============
+@api_router.post("/reactivation/run")
+async def trigger_reactivation(background_tasks: BackgroundTasks):
+    """Trigger reactivation job - call this from external cron service"""
+    background_tasks.add_task(run_reactivation_job)
+    return {"status": "started", "message": "Reactivation job queued"}
+
+@api_router.get("/reactivation/stats")
+async def get_reactivation_stats():
+    """Get reactivation statistics"""
+    try:
+        total_users = await db.users.count_documents({"selected_character": {"$ne": None}})
+        hit_paywall = await db.users.count_documents({"hit_paywall": True})
+        inactive_24h = await db.users.count_documents({
+            "last_active": {"$lt": (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()}
+        })
+        reactivated = await db.users.count_documents({"reactivation_attempts": {"$gt": 0}})
+        
+        return {
+            "total_users": total_users,
+            "hit_paywall": hit_paywall,
+            "inactive_24h": inactive_24h,
+            "reactivated_count": reactivated
+        }
+    except Exception as e:
+        logger.error(f"Error getting reactivation stats: {e}")
+        return {"error": str(e)}
+
+# ============ VOICE SETTINGS ENDPOINTS ============
+@api_router.post("/user/{telegram_id}/voice-preference")
+async def set_voice_preference(telegram_id: str, preference: str):
+    """Set user's voice preference (natural, dominant, whisper)"""
+    if preference not in ["natural", "dominant", "whisper"]:
+        raise HTTPException(status_code=400, detail="Invalid preference. Use: natural, dominant, whisper")
+    
+    await db.users.update_one(
+        {"telegram_id": telegram_id},
+        {"$set": {"voice_preference": preference, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    return {"status": "updated", "voice_preference": preference}
+
+@api_router.get("/voice/status")
+async def get_voice_status():
+    """Check if voice features are available"""
+    return {
+        "enabled": bool(ELEVENLABS_API_KEY),
+        "characters": list(VOICE_CONFIG.keys()),
+        "styles": ["natural", "dominant", "whisper"]
+    }
+
 app.include_router(api_router)
 
 app.add_middleware(
