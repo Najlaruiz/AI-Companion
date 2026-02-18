@@ -560,6 +560,7 @@ async def create_checkout_session(telegram_id: str, tier: str, origin_url: str) 
 
 # ============ TELEGRAM WEBHOOK HANDLER ============
 async def handle_telegram_update(update: dict):
+    logger.info(f"Received Telegram update: {json.dumps(update)[:500]}")
     try:
         # Handle callback queries
         if "callback_query" in update:
