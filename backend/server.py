@@ -501,31 +501,31 @@ def get_soft_break_message(character_key: str) -> str:
 EDGE_VOICE_CONFIG = {
     "valeria": {
         "voices": {
-            "natural": "en-US-AriaNeural",      # Mature, confident
-            "dominant": "en-US-JennyNeural",     # Commanding
-            "whisper": "en-US-AriaNeural"        # Soft (with rate adjustment)
+            "natural": "en-US-AvaNeural",        # Mature, confident
+            "dominant": "en-US-EmmaNeural",      # Commanding
+            "whisper": "en-US-AvaNeural"         # Soft (with rate adjustment)
         },
-        "rate": {"natural": "+0%", "dominant": "+5%", "whisper": "-10%"},
-        "pitch": {"natural": "+0Hz", "dominant": "+2Hz", "whisper": "-2Hz"},
+        "rate": {"natural": "+0%", "dominant": "+5%", "whisper": "-15%"},
+        "pitch": {"natural": "+0Hz", "dominant": "+2Hz", "whisper": "-3Hz"},
         "teaser_text": "Do you want to hear how I'd say that?"
     },
     "luna": {
         "voices": {
-            "natural": "en-US-SaraNeural",       # Soft, emotional
-            "dominant": "en-US-JennyNeural",
-            "whisper": "en-US-SaraNeural"
+            "natural": "en-AU-NatashaNeural",    # Soft, emotional
+            "dominant": "en-US-EmmaNeural",
+            "whisper": "en-AU-NatashaNeural"
         },
-        "rate": {"natural": "-5%", "dominant": "+0%", "whisper": "-15%"},
-        "pitch": {"natural": "+0Hz", "dominant": "+0Hz", "whisper": "-3Hz"},
+        "rate": {"natural": "-5%", "dominant": "+0%", "whisper": "-20%"},
+        "pitch": {"natural": "-1Hz", "dominant": "+0Hz", "whisper": "-4Hz"},
         "teaser_text": "I wish you could hear my voice right now…"
     },
     "nyx": {
         "voices": {
-            "natural": "en-US-JaneNeural",       # Young, edgy
-            "dominant": "en-US-JaneNeural",
-            "whisper": "en-US-JaneNeural"
+            "natural": "en-IE-EmilyNeural",      # Young, edgy (Irish accent adds mystery)
+            "dominant": "en-IE-EmilyNeural",
+            "whisper": "en-IE-EmilyNeural"
         },
-        "rate": {"natural": "+0%", "dominant": "+10%", "whisper": "-5%"},
+        "rate": {"natural": "+0%", "dominant": "+10%", "whisper": "-10%"},
         "pitch": {"natural": "+0Hz", "dominant": "+3Hz", "whisper": "-5Hz"},
         "teaser_text": "Imagine hearing me say this..."
     }
@@ -533,10 +533,10 @@ EDGE_VOICE_CONFIG = {
 
 # Multi-language voice mapping
 EDGE_VOICE_LANGUAGES = {
-    "en": {"valeria": "en-US-AriaNeural", "luna": "en-US-SaraNeural", "nyx": "en-US-JaneNeural"},
-    "es": {"valeria": "es-ES-ElviraNeural", "luna": "es-MX-DaliaNeural", "nyx": "es-ES-ElviraNeural"},
-    "fr": {"valeria": "fr-FR-DeniseNeural", "luna": "fr-FR-DeniseNeural", "nyx": "fr-FR-DeniseNeural"},
-    "ar": {"valeria": "ar-SA-ZariyahNeural", "luna": "ar-SA-ZariyahNeural", "nyx": "ar-SA-ZariyahNeural"}
+    "en": {"valeria": "en-US-AvaNeural", "luna": "en-AU-NatashaNeural", "nyx": "en-IE-EmilyNeural"},
+    "es": {"valeria": "es-ES-XimenaNeural", "luna": "es-AR-ElenaNeural", "nyx": "es-CO-SalomeNeural"},
+    "fr": {"valeria": "fr-FR-DeniseNeural", "luna": "fr-FR-EloiseNeural", "nyx": "fr-CA-SylvieNeural"},
+    "ar": {"valeria": "ar-EG-SalmaNeural", "luna": "ar-JO-SanaNeural", "nyx": "ar-BH-LailaNeural"}
 }
 
 async def generate_voice_message(text: str, character_key: str, voice_style: str = "natural", language: str = "en") -> bytes:
