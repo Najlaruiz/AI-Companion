@@ -1,7 +1,9 @@
 """
-Backend API Tests for P1 Reactivation System
+Backend API Tests for P1 Reactivation System with Edge TTS
 Tests: /api/voice/status, /api/reactivation/stats, /api/reactivation/run, /api/health
 Features: Character-specific emotional scripts, Voice teasers/messages, Timing (24h, 72h, 7d)
+Voice: Edge TTS (free, always available) - natural/dominant/whisper styles
+Multi-language: EN/ES/FR/AR
 """
 import pytest
 import requests
@@ -11,7 +13,7 @@ BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://paywall-staging.prev
 
 
 class TestVoiceStatusEndpoint:
-    """Voice status endpoint tests - /api/voice/status"""
+    """Voice status endpoint tests - /api/voice/status - Edge TTS (FREE)"""
     
     def test_voice_status_returns_200(self):
         """Test /api/voice/status returns 200 OK"""
@@ -19,14 +21,22 @@ class TestVoiceStatusEndpoint:
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
         print(f"Voice status endpoint returned: {response.json()}")
     
-    def test_voice_status_has_enabled_field(self):
-        """Test /api/voice/status returns enabled field"""
+    def test_voice_status_enabled_true(self):
+        """Test /api/voice/status returns enabled=true (Edge TTS is always available)"""
         response = requests.get(f"{BASE_URL}/api/voice/status")
         data = response.json()
         assert "enabled" in data, "Response should have 'enabled' field"
-        # Voice is disabled since ELEVENLABS_API_KEY is not set
-        assert data["enabled"] == False, "Voice should be disabled without ElevenLabs API key"
+        # Edge TTS is free and always available - enabled should be True
+        assert data["enabled"] == True, "Voice should be enabled with Edge TTS (free provider)"
         print(f"Voice enabled: {data['enabled']}")
+    
+    def test_voice_status_provider_edge_tts(self):
+        """Test /api/voice/status returns Edge TTS provider"""
+        response = requests.get(f"{BASE_URL}/api/voice/status")
+        data = response.json()
+        assert "provider" in data, "Response should have 'provider' field"
+        assert "Edge TTS" in data["provider"], f"Expected Edge TTS provider, got '{data.get('provider')}'"
+        print(f"Voice provider: {data['provider']}")
     
     def test_voice_status_has_characters(self):
         """Test /api/voice/status returns characters list"""
