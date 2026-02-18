@@ -1091,6 +1091,15 @@ async def handle_callback(callback: dict):
     
     user = await get_or_create_user(telegram_id, user_info.get("username"), user_info.get("first_name"))
     
+    # Language selection callbacks
+    if data.startswith("lang_"):
+        lang = data.replace("lang_", "")
+        await update_user(telegram_id, {"language": lang})
+        await answer_callback_query(callback_id, f"Language set!")
+        # Now show companion selection
+        await send_companion_selection(chat_id, user)
+        return
+    
     # Character selection
     if data.startswith("select_"):
         character = data.replace("select_", "")
@@ -1099,15 +1108,19 @@ async def handle_callback(callback: dict):
         if user.get("character_locked") and user.get("tier") != "vip":
             current_char = user.get("selected_character")
             if current_char and current_char != character:
-                # Locked - show upgrade prompt
-                other_char = CHARACTER_PROMPTS.get(character, {})
-                await answer_callback_query(callback_id, "Companion locked!")
+                # Locked - show jealousy message
+                current_info = CHARACTER_PROMPTS.get(current_char, {})
+                other_info = CHARACTER_PROMPTS.get(character, {})
+                await answer_callback_query(callback_id, "She noticed...")
+                jealousy_msg = f"{current_info.get('emoji', '')} <b>{current_info.get('name', 'She')}</b> noticed you looking at {other_info.get('name', 'her')}...\n\n"
+                jealousy_msg += "<i>\"You think you can just leave me?\"</i>\n\n"
+                jealousy_msg += "🔥 <b>Unlock all companions with After Dark.</b>"
                 await send_telegram_message(
                     chat_id,
-                    f"She noticed you looking at {other_char.get('name', 'her')}…\n\nUnlock all companions with VIP.",
+                    jealousy_msg,
                     reply_markup={
                         "inline_keyboard": [[
-                            {"text": "👑 Unlock All - VIP $39/mo", "callback_data": "upgrade_vip"}
+                            {"text": "🔥 Unlock All – After Dark $39", "callback_data": "upgrade_vip"}
                         ]]
                     }
                 )
@@ -1121,9 +1134,9 @@ async def handle_callback(callback: dict):
             })
             await answer_callback_query(callback_id, f"You chose {char_info['name']}")
             
-            # Send intro message
-            intro = f"<b>{char_info['emoji']} {char_info['name']}</b>\n<i>{char_info['age']} • {char_info['personality']}</i>\n\n"
-            intro += "<i>You only get 10 messages with me.</i>\n\n"
+            # Send SEXY intro message - NO message limit mention
+            intro = f"{char_info['emoji']} <b>{char_info['name']}</b>\n"
+            intro += f"<i>{char_info['age']} • {char_info['personality']}</i>\n\n"
             intro += char_info['welcome_script']
             
             await send_telegram_message(chat_id, intro)
