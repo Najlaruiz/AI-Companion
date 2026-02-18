@@ -1058,19 +1058,11 @@ async def handle_telegram_update(update: dict):
         # Save AI response
         await save_chat_message(telegram_id, character_key, "assistant", response, new_escalation)
         
-        # Add subtle message counter for free users (only at specific moments)
-        tier = user.get("tier", "free")
-        if tier == "free":
-            msg_count = user.get("lifetime_message_count", 0) + 1
-            bonus = user.get("bonus_messages", 0)
-            remaining = (10 + bonus) - msg_count
-            # Only show at 3, 2 messages left (not on emotional paywall stages)
-            if remaining in [2, 3]:
-                response += f"\n\n<i>{remaining} messages left...</i>"
-        
+        # No message counter shown - keep the immersion
         await send_telegram_message(chat_id, response)
         
         # VIP users get voice messages (Edge TTS - always available)
+        tier = user.get("tier", "free")
         if tier == "vip":
             voice_style = user.get("voice_preference", "natural")
             language = user.get("language", "en")
