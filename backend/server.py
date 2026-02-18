@@ -1214,6 +1214,61 @@ async def handle_switch_request(chat_id: str, user: dict):
             }
         )
 
+async def handle_voice_settings(chat_id: str, user: dict, text: str):
+    """Handle voice preference settings for VIP users"""
+    telegram_id = user.get("telegram_id")
+    tier = user.get("tier", "free")
+    
+    if tier != "vip":
+        backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+        await send_telegram_message(
+            chat_id,
+            "🎙 <b>Voice Messages</b>\n\n<i>Hear her voice. Feel her presence.</i>\n\nVoice messages are exclusive to After Dark.",
+            reply_markup={
+                "inline_keyboard": [[
+                    {"text": "🔥 Unlock Voice – After Dark $39/mo", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
+                ]]
+            }
+        )
+        return
+    
+    # Check for preference in command
+    parts = text.split()
+    if len(parts) > 1 and parts[1] in ["natural", "dominant", "whisper"]:
+        preference = parts[1]
+        await update_user(telegram_id, {"voice_preference": preference})
+        
+        style_descriptions = {
+            "natural": "Natural girlfriend voice",
+            "dominant": "Commanding & confident",
+            "whisper": "Soft & intimate whisper"
+        }
+        
+        await send_telegram_message(
+            chat_id,
+            f"🎙 Voice set to: <b>{style_descriptions[preference]}</b>"
+        )
+        return
+    
+    # Show voice settings menu
+    current = user.get("voice_preference", "natural")
+    await send_telegram_message(
+        chat_id,
+        f"🎙 <b>Voice Settings</b>\n\n"
+        f"Current: <b>{current}</b>\n\n"
+        f"Choose how she sounds:\n\n"
+        f"• <code>/voice natural</code> – Natural girlfriend\n"
+        f"• <code>/voice dominant</code> – Commanding & confident\n"
+        f"• <code>/voice whisper</code> – Soft & intimate",
+        reply_markup={
+            "inline_keyboard": [
+                [{"text": "🎤 Natural", "callback_data": "voice_natural"}],
+                [{"text": "👠 Dominant", "callback_data": "voice_dominant"}],
+                [{"text": "💋 Whisper", "callback_data": "voice_whisper"}]
+            ]
+        }
+    )
+
 async def process_referral(telegram_id: str, referral_code: str, user: dict):
     """Process referral code"""
     if user.get("referred_by"):
