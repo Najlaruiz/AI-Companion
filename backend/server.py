@@ -201,6 +201,70 @@ LANGUAGE: Respond in the SAME language the user writes in. Match their language 
     }
 }
 
+# ============ REACTIVATION SYSTEM ============
+# Character-specific reactivation scripts by time period
+REACTIVATION_SCRIPTS = {
+    "valeria": {
+        "24h": "Did you forget who you were talking to?",
+        "72h": "I don't chase… but I noticed you disappeared.",
+        "7d": "Come back. I'm not repeating myself.",
+        "paywall_return": "I didn't want to stop there…"
+    },
+    "luna": {
+        "24h": "I was thinking about you today…",
+        "72h": "Did I say something wrong?",
+        "7d": "I miss how you made me feel.",
+        "paywall_return": "I didn't want to leave you like that…"
+    },
+    "nyx": {
+        "24h": "You got scared?",
+        "72h": "I thought you were braver.",
+        "7d": "I found someone else to play with.",
+        "paywall_return": "You almost had me…"
+    }
+}
+
+# Voice configuration per character - ElevenLabs voice IDs and settings
+# These will be configured when ElevenLabs API key is provided
+VOICE_CONFIG = {
+    "valeria": {
+        "voice_id": "",  # Will be set with actual ElevenLabs voice
+        "stability": 0.7,  # More controlled
+        "similarity_boost": 0.8,
+        "style": 0.5,
+        "styles": {
+            "natural": {"stability": 0.7, "similarity_boost": 0.8, "style": 0.4},
+            "dominant": {"stability": 0.8, "similarity_boost": 0.9, "style": 0.6},
+            "whisper": {"stability": 0.5, "similarity_boost": 0.7, "style": 0.3}
+        },
+        "teaser_text": "Do you want to hear how I'd say that?"
+    },
+    "luna": {
+        "voice_id": "",
+        "stability": 0.5,  # More emotional variation
+        "similarity_boost": 0.75,
+        "style": 0.6,
+        "styles": {
+            "natural": {"stability": 0.5, "similarity_boost": 0.75, "style": 0.5},
+            "dominant": {"stability": 0.6, "similarity_boost": 0.8, "style": 0.4},
+            "whisper": {"stability": 0.3, "similarity_boost": 0.7, "style": 0.7}
+        },
+        "teaser_text": "I wish you could hear my voice right now…"
+    },
+    "nyx": {
+        "voice_id": "",
+        "stability": 0.4,  # Unpredictable
+        "similarity_boost": 0.85,
+        "style": 0.7,
+        "styles": {
+            "natural": {"stability": 0.4, "similarity_boost": 0.85, "style": 0.6},
+            "dominant": {"stability": 0.5, "similarity_boost": 0.9, "style": 0.8},
+            "whisper": {"stability": 0.3, "similarity_boost": 0.8, "style": 0.5}
+        },
+        "teaser_text": "Imagine hearing me say this..."
+    }
+}
+
 # ============ TIER SYSTEM ============
 TIERS = {
     "free": {
