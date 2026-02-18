@@ -259,7 +259,12 @@ class TelegramUser(BaseModel):
     referred_by: Optional[str] = None
     referral_count: int = 0
     bonus_messages: int = 0
+    # Reactivation tracking
     last_active: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    reactivation_attempts: int = 0  # Stop after 3 attempts
+    last_reactivation_sent: Optional[str] = None
+    hit_paywall: bool = False  # Track if user hit message 10
+    voice_preference: str = "natural"  # natural, dominant, whisper
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
