@@ -459,7 +459,6 @@ async def generate_ai_response(user: dict, user_message: str, paywall_stage: int
     character_key = user.get("selected_character", "valeria")
     character = CHARACTER_PROMPTS.get(character_key, CHARACTER_PROMPTS["valeria"])
     tier = user.get("tier", "free")
-    tier_config = TIERS.get(tier, TIERS["free"])
     
     # Build dynamic system prompt based on tier
     system_prompt = character["system_prompt"]
@@ -703,7 +702,7 @@ async def handle_callback(callback: dict):
             
             # Send intro message
             intro = f"<b>{char_info['emoji']} {char_info['name']}</b>\n<i>{char_info['age']} • {char_info['personality']}</i>\n\n"
-            intro += f"<i>You only get 10 messages with me.</i>\n\n"
+            intro += "<i>You only get 10 messages with me.</i>\n\n"
             intro += char_info['welcome_script']
             
             await send_telegram_message(chat_id, intro)
