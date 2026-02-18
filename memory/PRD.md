@@ -73,8 +73,8 @@ EMERGENT_LLM_KEY=sk-emergent-b890aEa2e77A71a286
 - **Webhook:** Configured and active
 
 ## Deployment
-- **Landing:** https://telegram-companion-2.preview.emergentagent.com
-- **API:** https://telegram-companion-2.preview.emergentagent.com/api/
+- **Landing:** https://paywall-staging.preview.emergentagent.com
+- **API:** https://paywall-staging.preview.emergentagent.com/api/
 
 ## Prioritized Backlog
 
