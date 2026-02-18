@@ -51,7 +51,7 @@ class TestVoiceStatusEndpoint:
         print(f"Voice characters: {data['characters']}")
     
     def test_voice_status_has_styles(self):
-        """Test /api/voice/status returns voice styles"""
+        """Test /api/voice/status returns voice styles (natural, dominant, whisper)"""
         response = requests.get(f"{BASE_URL}/api/voice/status")
         data = response.json()
         assert "styles" in data, "Response should have 'styles' field"
@@ -61,6 +61,18 @@ class TestVoiceStatusEndpoint:
         for style in expected_styles:
             assert style in data["styles"], f"Voice style '{style}' should be available"
         print(f"Voice styles: {data['styles']}")
+    
+    def test_voice_status_has_languages(self):
+        """Test /api/voice/status returns multi-language support (EN/ES/FR/AR)"""
+        response = requests.get(f"{BASE_URL}/api/voice/status")
+        data = response.json()
+        assert "languages" in data, "Response should have 'languages' field"
+        assert isinstance(data["languages"], list), "Languages should be a list"
+        # Should have en, es, fr, ar
+        expected_languages = ["en", "es", "fr", "ar"]
+        for lang in expected_languages:
+            assert lang in data["languages"], f"Language '{lang}' should be supported"
+        print(f"Voice languages: {data['languages']}")
 
 
 class TestReactivationStatsEndpoint:
