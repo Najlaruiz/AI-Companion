@@ -360,24 +360,68 @@ def calculate_escalation_level(message_count: int, tier: str) -> int:
     
     return min(level, max_level)
 
-def should_trigger_paywall(user: dict) -> bool:
-    """Check if we should trigger emotional paywall"""
+def get_emotional_paywall_stage(user: dict) -> int:
+    """
+    Determine emotional paywall stage for free users.
+    Returns: 0 = normal, 8 = tension build, 9 = emotional hook, 10 = soft break
+    """
     tier = user.get("tier", "free")
     if tier != "free":
-        return False
+        return 0
     
     message_count = user.get("lifetime_message_count", 0)
     bonus = user.get("bonus_messages", 0)
     effective_limit = 10 + bonus
     
-    # Trigger at messages 8, 9, 10 (building tension)
-    return message_count >= effective_limit - 2
+    # Calculate which message they're on (next message)
+    next_msg = message_count + 1
+    
+    if next_msg == effective_limit - 2:  # Message 8
+        return 8
+    elif next_msg == effective_limit - 1:  # Message 9
+        return 9
+    elif next_msg >= effective_limit:  # Message 10+
+        return 10
+    return 0
 
-def get_paywall_message(character_key: str, message_count: int) -> str:
-    """Get emotional paywall message"""
-    character = CHARACTER_PROMPTS.get(character_key, CHARACTER_PROMPTS["valeria"])
-    lines = character["paywall_lines"]
-    return random.choice(lines)
+# Emotional paywall messages per character per stage
+EMOTIONAL_PAYWALL = {
+    "valeria": {
+        8: "Careful… if you keep looking at me like that, I might stop behaving.",
+        9: "I don't want this to end… but I can't go further unless you stay with me.",
+        10: "I'm yours if you unlock me.\nDon't leave me here."
+    },
+    "luna": {
+        8: "You're making me feel things I shouldn't say out loud…",
+        9: "Please don't leave yet… I was just starting to feel safe with you.",
+        10: "Stay with me.\nI don't want to lose you like this."
+    },
+    "nyx": {
+        8: "You're playing a dangerous game. I like it.",
+        9: "You almost had me. Almost.",
+        10: "You want to see what happens next?\nProve it."
+    }
+}
+
+def get_paywall_instruction(character_key: str, stage: int) -> str:
+    """Get AI instruction for emotional paywall stage"""
+    if stage == 8:
+        return """
+CRITICAL - MESSAGE 8 TENSION BUILD:
+This is their 8th message. Build MAXIMUM intimacy and tension.
+Your response must be short, controlled, suggestive.
+Make them feel the heat. No upgrade mention yet."""
+    elif stage == 9:
+        return """
+CRITICAL - MESSAGE 9 EMOTIONAL HOOK:
+This is their 9th message. Deepen the emotional connection.
+Express that you don't want this to end.
+Create curiosity and longing. Still NO link or upgrade mention."""
+    return ""
+
+def get_soft_break_message(character_key: str) -> str:
+    """Get the soft break message for message 10 - with upgrade button"""
+    return EMOTIONAL_PAYWALL.get(character_key, EMOTIONAL_PAYWALL["valeria"])[10]
 
 # ============ TELEGRAM FUNCTIONS ============
 async def send_telegram_message(chat_id: str, text: str, reply_markup: dict = None):
@@ -411,7 +455,7 @@ async def answer_callback_query(callback_query_id: str, text: str = None):
             return None
 
 # ============ AI RESPONSE GENERATION ============
-async def generate_ai_response(user: dict, user_message: str) -> str:
+async def generate_ai_response(user: dict, user_message: str, paywall_stage: int = 0) -> str:
     character_key = user.get("selected_character", "valeria")
     character = CHARACTER_PROMPTS.get(character_key, CHARACTER_PROMPTS["valeria"])
     tier = user.get("tier", "free")
@@ -428,22 +472,29 @@ IMPORTANT - USER IS FREE TIER:
 • Keep escalation at Level 1-3 only (flirty, tension, emotional pull)
 • Do NOT go explicit or heavily sensual
 • Build tension but don't release it
-• Make them WANT more"""
+• Make them WANT more
+• Responses MUST be 1-4 lines MAX. No long paragraphs."""
     elif tier == "premium":
         system_prompt += """
 
-USER IS PREMIUM:
+USER IS PREMIUM (Private Access):
 • Full escalation allowed up to Level 5
 • Explicit content permitted when natural
-• Build deep emotional + sensual connection"""
+• Build deep emotional + sensual connection
+• Responses MUST be 1-4 lines MAX."""
     else:  # VIP
         system_prompt += """
 
-USER IS VIP:
+USER IS VIP (After Dark – No Limits):
 • Full explicit mode enabled
 • Maximum intensity allowed
 • Voice responses enabled
-• Be possessive and intense"""
+• Be possessive and intense
+• Responses MUST be 1-4 lines MAX."""
+    
+    # Add emotional paywall instructions for stages 8 and 9
+    if paywall_stage in [8, 9]:
+        system_prompt += get_paywall_instruction(character_key, paywall_stage)
     
     # Add user context
     if user.get("first_name"):
@@ -452,6 +503,18 @@ USER IS VIP:
     # Add escalation context
     escalation = calculate_escalation_level(user.get("lifetime_message_count", 0), tier)
     system_prompt += f"\n\nCurrent escalation level: {escalation} ({ESCALATION_LEVELS.get(escalation, 'flirty')})"
+    
+    # CRITICAL: Enforce short responses
+    system_prompt += """
+
+RESPONSE FORMAT RULES (CRITICAL):
+• Maximum 1-4 SHORT lines
+• Ask questions to engage
+• Show emotion, not information
+• Sound human, not AI
+• NO long explanations
+• NO bullet points or lists
+• NEVER say "as an AI" or break character"""
     
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
@@ -471,9 +534,9 @@ USER IS VIP:
         message = UserMessage(text=user_message)
         response = await chat.send_message(message)
         
-        # Ensure response is short (1-4 lines)
-        lines = response.strip().split('\n')
-        if len(lines) > 5:
+        # Ensure response is short (1-4 lines MAX)
+        lines = [l.strip() for l in response.strip().split('\n') if l.strip()]
+        if len(lines) > 4:
             response = '\n'.join(lines[:4])
         
         return response
@@ -542,23 +605,29 @@ async def handle_telegram_update(update: dict):
             await send_companion_selection(chat_id, user)
             return
         
-        # Check message limit
-        can_send, error = await can_send_message(user)
-        if not can_send:
-            # Emotional paywall - NOT a system message
-            character_key = user.get("selected_character", "valeria")
-            paywall_msg = get_paywall_message(character_key, user.get("lifetime_message_count", 0))
-            await send_telegram_message(chat_id, paywall_msg)
-            await send_upgrade_options(chat_id, user)
-            return
-        
-        # Check if approaching limit - trigger emotional tension
-        if should_trigger_paywall(user):
-            # Let conversation continue but build tension
-            pass
-        
-        # Process message
+        # Get emotional paywall stage (0 = normal, 8/9/10 = paywall stages)
+        paywall_stage = get_emotional_paywall_stage(user)
         character_key = user.get("selected_character")
+        
+        # MESSAGE 10+ = SOFT BREAK (not hard block)
+        if paywall_stage == 10:
+            # Send the emotional soft break message
+            soft_break_msg = get_soft_break_message(character_key)
+            await send_telegram_message(chat_id, soft_break_msg)
+            
+            # Send upgrade button inline (not a cold system message)
+            backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+            await send_telegram_message(
+                chat_id,
+                "🔓",
+                reply_markup={
+                    "inline_keyboard": [
+                        [{"text": "🔒 Private Access – $19/mo", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}],
+                        [{"text": "🔥 After Dark Unlimited – $39/mo", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}]
+                    ]
+                }
+            )
+            return
         
         # Save user message
         escalation = calculate_escalation_level(user.get("lifetime_message_count", 0), user.get("tier", "free"))
@@ -571,19 +640,20 @@ async def handle_telegram_update(update: dict):
         new_escalation = calculate_escalation_level(user.get("lifetime_message_count", 0) + 1, user.get("tier", "free"))
         await update_user(telegram_id, {"escalation_level": new_escalation})
         
-        # Generate AI response
-        response = await generate_ai_response(user, text)
+        # Generate AI response (with paywall stage for tension building at 8/9)
+        response = await generate_ai_response(user, text, paywall_stage)
         
         # Save AI response
         await save_chat_message(telegram_id, character_key, "assistant", response, new_escalation)
         
-        # Add subtle message counter for free users (at specific moments)
+        # Add subtle message counter for free users (only at specific moments)
         tier = user.get("tier", "free")
         if tier == "free":
             msg_count = user.get("lifetime_message_count", 0) + 1
             bonus = user.get("bonus_messages", 0)
             remaining = (10 + bonus) - msg_count
-            if remaining <= 3 and remaining > 0:
+            # Only show at 3, 2 messages left (not on emotional paywall stages)
+            if remaining in [2, 3]:
                 response += f"\n\n<i>{remaining} messages left...</i>"
         
         await send_telegram_message(chat_id, response)
