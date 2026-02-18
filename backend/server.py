@@ -492,6 +492,245 @@ def get_soft_break_message(character_key: str) -> str:
     """Get the soft break message for message 10 - with upgrade button"""
     return EMOTIONAL_PAYWALL.get(character_key, EMOTIONAL_PAYWALL["valeria"])[10]
 
+# ============ VOICE GENERATION (ElevenLabs) ============
+async def generate_voice_message(text: str, character_key: str, voice_style: str = "natural") -> bytes:
+    """Generate voice message using ElevenLabs TTS"""
+    if not ELEVENLABS_API_KEY:
+        logger.warning("ElevenLabs API key not configured")
+        return None
+    
+    try:
+        from elevenlabs import ElevenLabs
+        from elevenlabs.types import VoiceSettings
+        
+        client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+        voice_config = VOICE_CONFIG.get(character_key, VOICE_CONFIG["valeria"])
+        style_settings = voice_config["styles"].get(voice_style, voice_config["styles"]["natural"])
+        
+        # Get voice ID - use pre-configured or fetch from ElevenLabs
+        voice_id = voice_config.get("voice_id")
+        if not voice_id:
+            # Use default ElevenLabs voices based on character personality
+            # These are public voices that match the character types
+            default_voices = {
+                "valeria": "21m00Tcm4TlvDq8ikWAM",  # Rachel - mature, confident
+                "luna": "EXAVITQu4vr4xnSDxMaL",     # Bella - soft, emotional
+                "nyx": "ThT5KcBeYPX3keUQqHPh"      # Dorothy - young, edgy
+            }
+            voice_id = default_voices.get(character_key, default_voices["valeria"])
+        
+        voice_settings = VoiceSettings(
+            stability=style_settings["stability"],
+            similarity_boost=style_settings["similarity_boost"],
+            style=style_settings["style"],
+            use_speaker_boost=True
+        )
+        
+        # Generate audio
+        audio_generator = client.text_to_speech.convert(
+            text=text,
+            voice_id=voice_id,
+            model_id="eleven_multilingual_v2",
+            voice_settings=voice_settings
+        )
+        
+        # Collect audio data
+        audio_data = b""
+        for chunk in audio_generator:
+            audio_data += chunk
+        
+        return audio_data
+        
+    except Exception as e:
+        logger.error(f"Error generating voice: {e}")
+        return None
+
+async def send_voice_message(chat_id: str, audio_data: bytes, caption: str = None):
+    """Send voice message via Telegram"""
+    if not TELEGRAM_BOT_TOKEN or not audio_data:
+        return None
+    
+    try:
+        import io
+        
+        # Telegram accepts OGG/OPUS format for voice messages
+        # ElevenLabs returns MP3, which Telegram can accept as audio
+        files = {
+            "voice": ("voice.ogg", io.BytesIO(audio_data), "audio/ogg")
+        }
+        data = {"chat_id": chat_id}
+        if caption:
+            data["caption"] = caption
+        
+        async with httpx.AsyncClient() as http_client:
+            response = await http_client.post(
+                f"{TELEGRAM_API}/sendVoice",
+                data=data,
+                files=files,
+                timeout=30.0
+            )
+            return response.json()
+    except Exception as e:
+        logger.error(f"Error sending voice message: {e}")
+        return None
+
+async def send_voice_teaser(chat_id: str, character_key: str, user: dict):
+    """Send a voice teaser to encourage VIP upgrade"""
+    tier = user.get("tier", "free")
+    if tier == "vip":
+        return  # VIP already has voice access
+    
+    voice_config = VOICE_CONFIG.get(character_key, VOICE_CONFIG["valeria"])
+    teaser_text = voice_config["teaser_text"]
+    
+    # Generate a short 3-second teaser
+    voice_style = user.get("voice_preference", "natural")
+    audio_data = await generate_voice_message(teaser_text, character_key, voice_style)
+    
+    if audio_data:
+        await send_voice_message(chat_id, audio_data)
+        # Send upgrade prompt
+        backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+        await send_telegram_message(
+            chat_id,
+            "🎙 <i>Want to hear more?</i>",
+            reply_markup={
+                "inline_keyboard": [[
+                    {"text": "🔥 Unlock Full Voice – After Dark", "url": f"{backend_url}/api/checkout/redirect?telegram_id={user.get('telegram_id')}&tier=vip"}
+                ]]
+            }
+        )
+
+# ============ REACTIVATION SYSTEM ============
+def get_reactivation_period(last_active_str: str) -> str:
+    """Determine which reactivation period applies"""
+    try:
+        last_active = datetime.fromisoformat(last_active_str.replace('Z', '+00:00'))
+        now = datetime.now(timezone.utc)
+        hours_inactive = (now - last_active).total_seconds() / 3600
+        
+        if hours_inactive >= 168:  # 7 days
+            return "7d"
+        elif hours_inactive >= 72:  # 3 days
+            return "72h"
+        elif hours_inactive >= 24:  # 1 day
+            return "24h"
+        return None
+    except Exception as e:
+        logger.error(f"Error calculating reactivation period: {e}")
+        return None
+
+async def send_reactivation_message(user: dict):
+    """Send character-specific reactivation message"""
+    telegram_id = user.get("telegram_id")
+    character_key = user.get("selected_character")
+    
+    if not character_key:
+        return False
+    
+    # Check reactivation period
+    period = get_reactivation_period(user.get("last_active", ""))
+    if not period:
+        return False
+    
+    # Check if user hit paywall (for special paywall return message)
+    hit_paywall = user.get("hit_paywall", False)
+    tier = user.get("tier", "free")
+    
+    # Get the appropriate message
+    scripts = REACTIVATION_SCRIPTS.get(character_key, REACTIVATION_SCRIPTS["valeria"])
+    
+    if hit_paywall and tier == "free":
+        message = scripts["paywall_return"]
+    else:
+        message = scripts.get(period, scripts["24h"])
+    
+    character = CHARACTER_PROMPTS.get(character_key, CHARACTER_PROMPTS["valeria"])
+    
+    # Send emotional reactivation (not automated-sounding)
+    full_message = f"{character['emoji']} <b>{character['name']}</b>\n\n{message}"
+    
+    try:
+        await send_telegram_message(telegram_id, full_message)
+        
+        # For free users who hit paywall, send upgrade CTA
+        if hit_paywall and tier == "free":
+            backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+            await send_telegram_message(
+                telegram_id,
+                "🔓 <i>Continue with me</i>",
+                reply_markup={
+                    "inline_keyboard": [
+                        [{"text": "🔒 Private Access – $19/mo", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}],
+                        [{"text": "🔥 After Dark – $39/mo", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}]
+                    ]
+                }
+            )
+        
+        # For free users, offer voice teaser
+        elif tier == "free" and ELEVENLABS_API_KEY:
+            await send_voice_teaser(telegram_id, character_key, user)
+        
+        # Update reactivation tracking
+        await db.users.update_one(
+            {"telegram_id": telegram_id},
+            {
+                "$set": {
+                    "last_reactivation_sent": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                },
+                "$inc": {"reactivation_attempts": 1}
+            }
+        )
+        
+        logger.info(f"Sent reactivation to {telegram_id} ({period})")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error sending reactivation: {e}")
+        return False
+
+async def run_reactivation_job():
+    """Background job to send reactivation messages - runs hourly"""
+    logger.info("Running reactivation job...")
+    
+    now = datetime.now(timezone.utc)
+    cutoff_24h = (now - timedelta(hours=24)).isoformat()
+    
+    # Find inactive users who:
+    # 1. Have a selected character
+    # 2. Last active > 24 hours ago
+    # 3. Reactivation attempts < 3
+    # 4. Haven't been sent a reactivation in the last 24 hours
+    
+    try:
+        inactive_users = await db.users.find(
+            {
+                "selected_character": {"$ne": None},
+                "last_active": {"$lt": cutoff_24h},
+                "reactivation_attempts": {"$lt": 3},
+                "$or": [
+                    {"last_reactivation_sent": {"$exists": False}},
+                    {"last_reactivation_sent": None},
+                    {"last_reactivation_sent": {"$lt": cutoff_24h}}
+                ]
+            },
+            {"_id": 0}
+        ).limit(50).to_list(50)  # Process 50 at a time
+        
+        sent_count = 0
+        for user in inactive_users:
+            success = await send_reactivation_message(user)
+            if success:
+                sent_count += 1
+        
+        logger.info(f"Reactivation job complete: sent {sent_count} messages")
+        return sent_count
+        
+    except Exception as e:
+        logger.error(f"Reactivation job error: {e}")
+        return 0
+
 # ============ TELEGRAM FUNCTIONS ============
 async def send_telegram_message(chat_id: str, text: str, reply_markup: dict = None):
     if not TELEGRAM_BOT_TOKEN:
