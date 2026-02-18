@@ -475,7 +475,7 @@ const LandingPage = () => {
       {/* Language Toggle */}
       <div className="fixed top-4 right-4 z-50">
         <div className="glass rounded-full px-2 py-1 flex items-center gap-1">
-          {['en', 'fr', 'ar'].map((l) => (
+          {['en', 'es', 'fr', 'ar'].map((l) => (
             <button
               key={l}
               onClick={() => setLang(l)}
