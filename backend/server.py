@@ -496,54 +496,84 @@ def get_soft_break_message(character_key: str) -> str:
     """Get the soft break message for message 10 - with upgrade button"""
     return EMOTIONAL_PAYWALL.get(character_key, EMOTIONAL_PAYWALL["valeria"])[10]
 
-# ============ VOICE GENERATION (ElevenLabs) ============
-async def generate_voice_message(text: str, character_key: str, voice_style: str = "natural") -> bytes:
-    """Generate voice message using ElevenLabs TTS"""
-    if not ELEVENLABS_API_KEY:
-        logger.warning("ElevenLabs API key not configured")
-        return None
-    
+# ============ VOICE GENERATION (Edge TTS - FREE) ============
+# Voice configuration per character - Edge TTS voices
+EDGE_VOICE_CONFIG = {
+    "valeria": {
+        "voices": {
+            "natural": "en-US-AriaNeural",      # Mature, confident
+            "dominant": "en-US-JennyNeural",     # Commanding
+            "whisper": "en-US-AriaNeural"        # Soft (with rate adjustment)
+        },
+        "rate": {"natural": "+0%", "dominant": "+5%", "whisper": "-10%"},
+        "pitch": {"natural": "+0Hz", "dominant": "+2Hz", "whisper": "-2Hz"},
+        "teaser_text": "Do you want to hear how I'd say that?"
+    },
+    "luna": {
+        "voices": {
+            "natural": "en-US-SaraNeural",       # Soft, emotional
+            "dominant": "en-US-JennyNeural",
+            "whisper": "en-US-SaraNeural"
+        },
+        "rate": {"natural": "-5%", "dominant": "+0%", "whisper": "-15%"},
+        "pitch": {"natural": "+0Hz", "dominant": "+0Hz", "whisper": "-3Hz"},
+        "teaser_text": "I wish you could hear my voice right now…"
+    },
+    "nyx": {
+        "voices": {
+            "natural": "en-US-JaneNeural",       # Young, edgy
+            "dominant": "en-US-JaneNeural",
+            "whisper": "en-US-JaneNeural"
+        },
+        "rate": {"natural": "+0%", "dominant": "+10%", "whisper": "-5%"},
+        "pitch": {"natural": "+0Hz", "dominant": "+3Hz", "whisper": "-5Hz"},
+        "teaser_text": "Imagine hearing me say this..."
+    }
+}
+
+# Multi-language voice mapping
+EDGE_VOICE_LANGUAGES = {
+    "en": {"valeria": "en-US-AriaNeural", "luna": "en-US-SaraNeural", "nyx": "en-US-JaneNeural"},
+    "es": {"valeria": "es-ES-ElviraNeural", "luna": "es-MX-DaliaNeural", "nyx": "es-ES-ElviraNeural"},
+    "fr": {"valeria": "fr-FR-DeniseNeural", "luna": "fr-FR-DeniseNeural", "nyx": "fr-FR-DeniseNeural"},
+    "ar": {"valeria": "ar-SA-ZariyahNeural", "luna": "ar-SA-ZariyahNeural", "nyx": "ar-SA-ZariyahNeural"}
+}
+
+async def generate_voice_message(text: str, character_key: str, voice_style: str = "natural", language: str = "en") -> bytes:
+    """Generate voice message using Edge TTS (FREE - no API key needed)"""
     try:
-        from elevenlabs import ElevenLabs
-        from elevenlabs.types import VoiceSettings
+        import edge_tts
+        import io
         
-        client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
-        voice_config = VOICE_CONFIG.get(character_key, VOICE_CONFIG["valeria"])
-        style_settings = voice_config["styles"].get(voice_style, voice_config["styles"]["natural"])
+        voice_config = EDGE_VOICE_CONFIG.get(character_key, EDGE_VOICE_CONFIG["valeria"])
         
-        # Get voice ID - use pre-configured or fetch from ElevenLabs
-        voice_id = voice_config.get("voice_id")
-        if not voice_id:
-            # Use default ElevenLabs voices based on character personality
-            # These are public voices that match the character types
-            default_voices = {
-                "valeria": "21m00Tcm4TlvDq8ikWAM",  # Rachel - mature, confident
-                "luna": "EXAVITQu4vr4xnSDxMaL",     # Bella - soft, emotional
-                "nyx": "ThT5KcBeYPX3keUQqHPh"      # Dorothy - young, edgy
-            }
-            voice_id = default_voices.get(character_key, default_voices["valeria"])
+        # Get voice based on language
+        if language in EDGE_VOICE_LANGUAGES:
+            voice = EDGE_VOICE_LANGUAGES[language].get(character_key, EDGE_VOICE_LANGUAGES["en"]["valeria"])
+        else:
+            voice = voice_config["voices"].get(voice_style, voice_config["voices"]["natural"])
         
-        voice_settings = VoiceSettings(
-            stability=style_settings["stability"],
-            similarity_boost=style_settings["similarity_boost"],
-            style=style_settings["style"],
-            use_speaker_boost=True
-        )
+        rate = voice_config["rate"].get(voice_style, "+0%")
+        pitch = voice_config["pitch"].get(voice_style, "+0Hz")
         
-        # Generate audio
-        audio_generator = client.text_to_speech.convert(
+        # Generate audio with Edge TTS
+        communicate = edge_tts.Communicate(
             text=text,
-            voice_id=voice_id,
-            model_id="eleven_multilingual_v2",
-            voice_settings=voice_settings
+            voice=voice,
+            rate=rate,
+            pitch=pitch
         )
         
         # Collect audio data
         audio_data = b""
-        for chunk in audio_generator:
-            audio_data += chunk
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_data += chunk["data"]
         
-        return audio_data
+        if audio_data:
+            logger.info(f"Voice generated: {len(audio_data)} bytes for {character_key}/{voice_style}")
+            return audio_data
+        return None
         
     except Exception as e:
         logger.error(f"Error generating voice: {e}")
@@ -557,10 +587,9 @@ async def send_voice_message(chat_id: str, audio_data: bytes, caption: str = Non
     try:
         import io
         
-        # Telegram accepts OGG/OPUS format for voice messages
-        # ElevenLabs returns MP3, which Telegram can accept as audio
+        # Edge TTS returns MP3, Telegram accepts it
         files = {
-            "voice": ("voice.ogg", io.BytesIO(audio_data), "audio/ogg")
+            "voice": ("voice.mp3", io.BytesIO(audio_data), "audio/mpeg")
         }
         data = {"chat_id": chat_id}
         if caption:
@@ -573,7 +602,9 @@ async def send_voice_message(chat_id: str, audio_data: bytes, caption: str = Non
                 files=files,
                 timeout=30.0
             )
-            return response.json()
+            result = response.json()
+            logger.info(f"Voice message sent: {result.get('ok')}")
+            return result
     except Exception as e:
         logger.error(f"Error sending voice message: {e}")
         return None
@@ -584,23 +615,25 @@ async def send_voice_teaser(chat_id: str, character_key: str, user: dict):
     if tier == "vip":
         return  # VIP already has voice access
     
-    voice_config = VOICE_CONFIG.get(character_key, VOICE_CONFIG["valeria"])
+    voice_config = EDGE_VOICE_CONFIG.get(character_key, EDGE_VOICE_CONFIG["valeria"])
     teaser_text = voice_config["teaser_text"]
+    language = user.get("language", "en")
     
-    # Generate a short 3-second teaser
-    voice_style = user.get("voice_preference", "natural")
-    audio_data = await generate_voice_message(teaser_text, character_key, voice_style)
+    # Generate a short teaser
+    voice_style = user.get("voice_preference", "whisper")  # Use whisper for teasers
+    audio_data = await generate_voice_message(teaser_text, character_key, voice_style, language)
     
     if audio_data:
         await send_voice_message(chat_id, audio_data)
         # Send upgrade prompt
         backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+        telegram_id = user.get('telegram_id')
         await send_telegram_message(
             chat_id,
             "🎙 <i>Want to hear more?</i>",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "🔥 Unlock Full Voice – After Dark", "url": f"{backend_url}/api/checkout/redirect?telegram_id={user.get('telegram_id')}&tier=vip"}
+                    {"text": "🔥 Unlock Full Voice – After Dark", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
                 ]]
             }
         )
