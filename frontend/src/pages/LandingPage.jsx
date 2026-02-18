@@ -248,87 +248,115 @@ const AuroraBackground = () => {
   return (
     <div className="aurora-container">
       {/* Main nebula layers */}
-      <div 
-        className="aurora-layer animate-nebula"
+      <motion.div 
+        className="aurora-layer"
         style={{
-          background: 'conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(109, 40, 217, 0.15) 60deg, transparent 120deg, rgba(139, 92, 246, 0.1) 180deg, transparent 240deg, rgba(212, 175, 55, 0.05) 300deg, transparent 360deg)',
+          background: 'conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(109, 40, 217, 0.25) 60deg, transparent 120deg, rgba(139, 92, 246, 0.2) 180deg, transparent 240deg, rgba(212, 175, 55, 0.1) 300deg, transparent 360deg)',
         }}
+        animate={{ rotate: [0, 360] }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
       />
       
-      {/* Floating orbs */}
+      {/* Primary floating orb - large violet */}
       <motion.div
-        className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full"
+        className="absolute w-[600px] h-[600px] rounded-full"
         style={{
-          background: 'radial-gradient(circle, rgba(109, 40, 217, 0.2) 0%, transparent 60%)',
-          filter: 'blur(60px)',
-        }}
-        animate={{
-          x: [0, 100, 50, -50, 0],
-          y: [0, -50, -100, -30, 0],
-          scale: [1, 1.2, 0.9, 1.1, 1],
-        }}
-        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-      />
-      
-      <motion.div
-        className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full"
-        style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 60%)',
-          filter: 'blur(50px)',
-        }}
-        animate={{
-          x: [0, -80, 30, 60, 0],
-          y: [0, 60, -40, 80, 0],
-          scale: [1, 0.9, 1.15, 1.05, 1],
-        }}
-        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-      />
-      
-      <motion.div
-        className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full"
-        style={{
-          background: 'radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 60%)',
+          background: 'radial-gradient(circle, rgba(109, 40, 217, 0.35) 0%, rgba(109, 40, 217, 0.1) 40%, transparent 70%)',
           filter: 'blur(40px)',
+          top: '10%',
+          left: '10%',
         }}
         animate={{
-          x: [0, 60, -40, 80, 0],
-          y: [0, -80, 60, -40, 0],
-          scale: [1, 1.1, 0.95, 1.05, 1],
+          x: [0, 150, 80, -50, 0],
+          y: [0, -80, -150, -50, 0],
+          scale: [1, 1.3, 0.9, 1.2, 1],
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 10 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
       
-      {/* Light streaks */}
-      {[...Array(5)].map((_, i) => (
+      {/* Secondary orb - purple */}
+      <motion.div
+        className="absolute w-[500px] h-[500px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%)',
+          filter: 'blur(50px)',
+          bottom: '10%',
+          right: '10%',
+        }}
+        animate={{
+          x: [0, -120, 50, 100, 0],
+          y: [0, 100, -60, 120, 0],
+          scale: [1, 0.85, 1.2, 1.1, 1],
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+      />
+      
+      {/* Tertiary orb - gold accent */}
+      <motion.div
+        className="absolute w-[350px] h-[350px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 40%, transparent 70%)',
+          filter: 'blur(30px)',
+          top: '40%',
+          right: '25%',
+        }}
+        animate={{
+          x: [0, 80, -60, 100, 0],
+          y: [0, -100, 80, -60, 0],
+          scale: [1, 1.15, 0.9, 1.1, 1],
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 8 }}
+      />
+      
+      {/* Light beams */}
+      {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-[2px] h-[200px]"
+          className="absolute"
           style={{
-            left: `${20 + i * 15}%`,
-            top: '-10%',
-            background: `linear-gradient(to bottom, transparent, rgba(139, 92, 246, ${0.2 + i * 0.05}), transparent)`,
-            filter: 'blur(2px)',
-            transformOrigin: 'center',
+            width: '3px',
+            height: '250px',
+            left: `${10 + i * 16}%`,
+            top: '-15%',
+            background: `linear-gradient(to bottom, transparent 0%, rgba(139, 92, 246, ${0.4 + i * 0.08}) 50%, transparent 100%)`,
+            filter: 'blur(3px)',
+            borderRadius: '50%',
           }}
           animate={{
-            y: ['0%', '150%'],
-            opacity: [0, 0.6, 0],
-            rotate: [45, 45],
+            y: ['0%', '180%'],
+            opacity: [0, 0.8, 0],
+            scaleY: [1, 1.5, 1],
           }}
           transition={{
-            duration: 8 + i * 2,
+            duration: 6 + i * 1.5,
             repeat: Infinity,
-            ease: "linear",
-            delay: i * 3,
+            ease: "easeInOut",
+            delay: i * 2.5,
           }}
         />
       ))}
       
-      {/* Wave overlay */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-[400px] opacity-30"
+      {/* Horizontal aurora wave */}
+      <motion.div
+        className="absolute w-full h-[200px]"
         style={{
-          background: 'linear-gradient(to top, rgba(109, 40, 217, 0.1), transparent)',
+          top: '30%',
+          background: 'linear-gradient(90deg, transparent 0%, rgba(109, 40, 217, 0.15) 25%, rgba(139, 92, 246, 0.2) 50%, rgba(109, 40, 217, 0.15) 75%, transparent 100%)',
+          filter: 'blur(60px)',
+        }}
+        animate={{
+          x: ['-50%', '50%', '-50%'],
+          opacity: [0.3, 0.6, 0.3],
+          scaleY: [1, 1.5, 1],
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+      />
+      
+      {/* Bottom glow */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-[300px]"
+        style={{
+          background: 'linear-gradient(to top, rgba(109, 40, 217, 0.15), transparent)',
         }}
       />
     </div>
