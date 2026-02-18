@@ -983,9 +983,8 @@ async def handle_telegram_update(update: dict):
                 }
             )
             
-            # Send voice teaser for free users
-            if ELEVENLABS_API_KEY:
-                await send_voice_teaser(chat_id, character_key, user)
+            # Send voice teaser for free users (Edge TTS - always available)
+            await send_voice_teaser(chat_id, character_key, user)
             
             return
         
