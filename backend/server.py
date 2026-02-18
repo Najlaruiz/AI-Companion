@@ -2,16 +2,18 @@ from fastapi import FastAPI, APIRouter, Request, HTTPException, BackgroundTasks
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from contextlib import asynccontextmanager
 import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Optional
 import uuid
 from datetime import datetime, timezone, timedelta
 import json
 import httpx
 import random
+import asyncio
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
