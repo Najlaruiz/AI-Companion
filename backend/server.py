@@ -640,6 +640,108 @@ async def send_voice_message(chat_id: str, audio_data: bytes, caption: str = Non
         logger.error(f"Error sending voice message: {e}")
         return None
 
+async def transcribe_voice_message(file_id: str) -> str:
+    """Download and transcribe voice message using OpenAI Whisper via Emergent"""
+    try:
+        # Get file path from Telegram
+        async with httpx.AsyncClient() as http_client:
+            response = await http_client.get(f"{TELEGRAM_API}/getFile?file_id={file_id}")
+            file_data = response.json()
+            if not file_data.get("ok"):
+                return None
+            
+            file_path = file_data["result"]["file_path"]
+            
+            # Download the file
+            download_url = f"https://api.telegram.org/file/bot{TELEGRAM_BOT_TOKEN}/{file_path}"
+            audio_response = await http_client.get(download_url)
+            audio_data = audio_response.content
+        
+        # Transcribe using Emergent's Whisper integration
+        from emergentintegrations.llm.openai_stt import OpenAISpeechToText
+        
+        stt = OpenAISpeechToText(api_key=EMERGENT_LLM_KEY)
+        
+        # Save temp file
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".ogg", delete=False) as f:
+            f.write(audio_data)
+            temp_path = f.name
+        
+        # Transcribe
+        transcription = await stt.transcribe(temp_path)
+        
+        # Clean up
+        import os as os_module
+        os_module.unlink(temp_path)
+        
+        logger.info(f"Transcribed voice: {transcription[:50]}...")
+        return transcription
+        
+    except Exception as e:
+        logger.error(f"Error transcribing voice: {e}")
+        return None
+
+async def handle_voice_message(chat_id: str, telegram_id: str, user: dict, voice_data: dict):
+    """Handle incoming voice message - VIP feature for voice-to-voice"""
+    tier = user.get("tier", "free")
+    
+    # Only VIP can send voice
+    if tier != "vip":
+        backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+        await send_telegram_message(
+            chat_id,
+            "🎙 <b>Voice Messages</b>\n\n<i>She wants to hear your voice...</i>\n\n"
+            "Voice-to-voice is a VIP feature.",
+            reply_markup={
+                "inline_keyboard": [[
+                    {"text": "🔥 Unlock Voice – After Dark $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
+                ]]
+            }
+        )
+        return
+    
+    # Get the voice file
+    file_id = voice_data.get("file_id")
+    if not file_id:
+        return
+    
+    # Transcribe the voice message
+    transcription = await transcribe_voice_message(file_id)
+    if not transcription:
+        await send_telegram_message(chat_id, "<i>I couldn't hear you clearly... try again?</i>")
+        return
+    
+    # Process like a text message
+    character_key = user.get("selected_character")
+    if not character_key:
+        await send_companion_selection(chat_id, user)
+        return
+    
+    # Save user message
+    escalation = calculate_escalation_level(user.get("lifetime_message_count", 0), tier)
+    await save_chat_message(telegram_id, character_key, "user", transcription, escalation)
+    
+    # Increment message count
+    await increment_message_count(telegram_id)
+    
+    # Generate AI response
+    response = await generate_ai_response(user, transcription, 0)
+    
+    # Save AI response
+    new_escalation = calculate_escalation_level(user.get("lifetime_message_count", 0) + 1, tier)
+    await save_chat_message(telegram_id, character_key, "assistant", response, new_escalation)
+    
+    # Send text response
+    await send_telegram_message(chat_id, response)
+    
+    # Send voice response (VIP feature)
+    voice_style = user.get("voice_preference", "natural")
+    language = user.get("language", "en")
+    audio_data = await generate_voice_message(response, character_key, voice_style, language)
+    if audio_data:
+        await send_voice_message(chat_id, audio_data)
+
 async def send_voice_teaser(chat_id: str, character_key: str, user: dict):
     """Send a voice teaser to encourage VIP upgrade"""
     tier = user.get("tier", "free")
