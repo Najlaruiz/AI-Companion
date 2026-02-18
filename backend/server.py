@@ -1017,10 +1017,11 @@ async def handle_telegram_update(update: dict):
         
         await send_telegram_message(chat_id, response)
         
-        # VIP users get voice messages
-        if tier == "vip" and ELEVENLABS_API_KEY:
+        # VIP users get voice messages (Edge TTS - always available)
+        if tier == "vip":
             voice_style = user.get("voice_preference", "natural")
-            audio_data = await generate_voice_message(response, character_key, voice_style)
+            language = user.get("language", "en")
+            audio_data = await generate_voice_message(response, character_key, voice_style, language)
             if audio_data:
                 await send_voice_message(chat_id, audio_data)
         
