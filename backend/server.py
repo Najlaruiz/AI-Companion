@@ -715,15 +715,15 @@ async def handle_callback(callback: dict):
         backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
         await send_telegram_message(
             chat_id,
-            "💎 <b>Private Access - $19/month</b>\n\n"
-            "• Unlimited text\n"
-            "• Full sensual + explicit\n"
-            "• She remembers you\n"
-            "• No interruptions\n\n"
-            "<i>You were never meant to stay at the door.</i>",
+            "🔒 <b>Private Access – $19/month</b>\n\n"
+            "• Unlimited messages with her\n"
+            "• Full sensual + explicit mode\n"
+            "• She remembers everything\n"
+            "• No interruptions. Ever.\n\n"
+            "<i>You weren't meant to stay at the door.</i>",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "🔓 Unlock Now", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}
+                    {"text": "🔓 Unlock Private Access", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}
                 ]]
             }
         )
@@ -734,16 +734,16 @@ async def handle_callback(callback: dict):
         backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
         await send_telegram_message(
             chat_id,
-            "👑 <b>After Dark – No Limits - $39/month</b>\n\n"
-            "• Voice replies\n"
+            "🔥 <b>After Dark – No Limits – $39/month</b>\n\n"
+            "• Voice messages from her\n"
             "• All 3 companions unlocked\n"
-            "• Switch anytime\n"
+            "• Switch between them anytime\n"
             "• Maximum intensity\n"
-            "• Explicit mode\n\n"
-            "<i>Some men want conversation. Others want control.</i>",
+            "• Full explicit mode\n\n"
+            "<i>Some want conversation.\nOthers want everything.</i>",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "👑 Go VIP", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
+                    {"text": "🔥 Go After Dark", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
                 ]]
             }
         )
@@ -819,21 +819,21 @@ async def send_upgrade_options(chat_id: str, user: dict):
     if tier == "free":
         await send_telegram_message(
             chat_id,
-            "🔒 <b>Unlock More</b>",
+            "🔓 <b>Unlock More</b>",
             reply_markup={
                 "inline_keyboard": [
-                    [{"text": "💎 Premium - $19/mo", "callback_data": "upgrade_premium"}],
-                    [{"text": "👑 VIP - $39/mo", "callback_data": "upgrade_vip"}]
+                    [{"text": "🔒 Private Access – $19/mo", "callback_data": "upgrade_premium"}],
+                    [{"text": "🔥 After Dark Unlimited – $39/mo", "callback_data": "upgrade_vip"}]
                 ]
             }
         )
     elif tier == "premium":
         await send_telegram_message(
             chat_id,
-            "👑 <b>Upgrade to VIP</b>\n\nUnlock voice + all companions.",
+            "🔥 <b>Go After Dark</b>\n\nUnlock voice + all companions.",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "👑 Go VIP - $39/mo", "callback_data": "upgrade_vip"}
+                    {"text": "🔥 After Dark – $39/mo", "callback_data": "upgrade_vip"}
                 ]]
             }
         )
