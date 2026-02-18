@@ -791,7 +791,7 @@ async def send_status(chat_id: str, user: dict):
     msg_count = user.get("lifetime_message_count", 0)
     bonus = user.get("bonus_messages", 0)
     
-    status = f"📊 <b>Your Status</b>\n\n"
+    status = "📊 <b>Your Status</b>\n\n"
     status += f"Tier: <b>{tier.upper()}</b>\n"
     
     if character:
@@ -803,11 +803,12 @@ async def send_status(chat_id: str, user: dict):
         if bonus > 0:
             status += f" <i>(+{bonus} bonus)</i>"
     else:
-        status += f"Messages: <b>Unlimited</b>"
+        status += "Messages: <b>Unlimited</b>"
     
     if tier == "vip":
-        status += f"\nVoice: <b>{'Enabled' if ELEVENLABS_API_KEY else 'Coming Soon'}</b>"
-        status += f"\nCompanions: <b>All Unlocked</b>"
+        voice_status = "Enabled" if ELEVENLABS_API_KEY else "Coming Soon"
+        status += f"\nVoice: <b>{voice_status}</b>"
+        status += "\nCompanions: <b>All Unlocked</b>"
     
     await send_telegram_message(chat_id, status)
 
