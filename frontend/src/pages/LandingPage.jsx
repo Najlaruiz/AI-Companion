@@ -379,7 +379,7 @@ const LandingPage = () => {
   return (
     <div className={`min-h-screen bg-[#0B0B10] text-white overflow-hidden ${isRtl ? 'rtl' : 'ltr'}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="noise-overlay" />
-      <Particles />
+      <AuroraBackground />
       
       {/* Language Toggle */}
       <div className="fixed top-4 right-4 z-50">
