@@ -1189,21 +1189,53 @@ async def handle_callback(callback: dict):
     
     await answer_callback_query(callback_id)
 
+async def send_language_selection(chat_id: str, user: dict):
+    """Send language selection menu FIRST"""
+    await send_telegram_message(
+        chat_id,
+        "🌙 <b>Private After Dark</b>\n\n"
+        "<i>Welcome to your private fantasy...</i>\n\n"
+        "🌍 <b>Choose your language:</b>",
+        reply_markup={
+            "inline_keyboard": [
+                [{"text": "🇬🇧 English", "callback_data": "lang_en"}],
+                [{"text": "🇪🇸 Español", "callback_data": "lang_es"}],
+                [{"text": "🇫🇷 Français", "callback_data": "lang_fr"}],
+                [{"text": "🇸🇦 العربية", "callback_data": "lang_ar"}]
+            ]
+        }
+    )
+
 async def send_companion_selection(chat_id: str, user: dict):
-    """Send companion selection menu"""
+    """Send companion selection menu - sexy entrance"""
     tier = user.get("tier", "free")
+    lang = user.get("language", "en")
+    
+    # Sexy intro messages per language
+    intros = {
+        "en": "🌙 <b>Private After Dark</b>\n\n<i>Three women are waiting for you.\nEach one wants something different.</i>\n\n<b>Who do you want tonight?</b>",
+        "es": "🌙 <b>Private After Dark</b>\n\n<i>Tres mujeres te esperan.\nCada una desea algo diferente.</i>\n\n<b>¿A quién quieres esta noche?</b>",
+        "fr": "🌙 <b>Private After Dark</b>\n\n<i>Trois femmes t'attendent.\nChacune désire quelque chose de différent.</i>\n\n<b>Qui veux-tu ce soir?</b>",
+        "ar": "🌙 <b>Private After Dark</b>\n\n<i>ثلاث نساء في انتظارك.\nكل واحدة تريد شيئاً مختلفاً.</i>\n\n<b>من تريد الليلة؟</b>"
+    }
     
     # Check if already has locked companion
     if user.get("character_locked") and tier != "vip":
         current = user.get("selected_character")
         char_info = CHARACTER_PROMPTS.get(current, {})
+        jealousy_msgs = {
+            "en": f"She noticed you trying to leave...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Her')}</b> is yours.\n\n<i>VIP unlocks all companions.</i>",
+            "es": f"Ella notó que intentabas irte...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Ella')}</b> es tuya.\n\n<i>VIP desbloquea todas las compañeras.</i>",
+            "fr": f"Elle a remarqué que tu essayais de partir...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Elle')}</b> est à toi.\n\n<i>VIP débloque toutes les compagnes.</i>",
+            "ar": f"لاحظت أنك تحاول المغادرة...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'هي')}</b> لك.\n\n<i>VIP يفتح جميع الرفيقات.</i>"
+        }
         await send_telegram_message(
             chat_id,
-            f"You're with {char_info.get('emoji', '')} <b>{char_info.get('name', 'her')}</b>.\n\nVIP unlocks all companions.",
+            jealousy_msgs.get(lang, jealousy_msgs["en"]),
             reply_markup={
                 "inline_keyboard": [
                     [{"text": f"Continue with {char_info.get('name', 'her')}", "callback_data": f"select_{current}"}],
-                    [{"text": "👑 Unlock All - VIP", "callback_data": "upgrade_vip"}]
+                    [{"text": "🔥 Unlock All – After Dark $39", "callback_data": "upgrade_vip"}]
                 ]
             }
         )
@@ -1211,13 +1243,12 @@ async def send_companion_selection(chat_id: str, user: dict):
     
     await send_telegram_message(
         chat_id,
-        "🌙 <b>Private After Dark</b>\n\n<i>Choose who you want tonight.</i>\n\n"
-        "⚠️ <i>You only get 10 messages.\nOnce you choose, she's yours.</i>",
+        intros.get(lang, intros["en"]),
         reply_markup={
             "inline_keyboard": [
                 [{"text": "👑 Valeria – 32 – Elegant Dominant", "callback_data": "select_valeria"}],
                 [{"text": "🌙 Luna – 26 – Emotional Addictive", "callback_data": "select_luna"}],
-                [{"text": "🖤 Nyx – 19 – Dark Temptation", "callback_data": "select_nyx"}]
+                [{"text": "🖤 Nyx – 29 – Dark Temptation", "callback_data": "select_nyx"}]
             ]
         }
     )
