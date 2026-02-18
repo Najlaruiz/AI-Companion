@@ -1502,9 +1502,11 @@ async def set_voice_preference(telegram_id: str, preference: str):
 async def get_voice_status():
     """Check if voice features are available"""
     return {
-        "enabled": bool(ELEVENLABS_API_KEY),
-        "characters": list(VOICE_CONFIG.keys()),
-        "styles": ["natural", "dominant", "whisper"]
+        "enabled": True,  # Edge TTS is always available (free, no API key)
+        "provider": "Edge TTS (Microsoft)",
+        "characters": list(EDGE_VOICE_CONFIG.keys()),
+        "styles": ["natural", "dominant", "whisper"],
+        "languages": list(EDGE_VOICE_LANGUAGES.keys())
     }
 
 # ============ INTERNAL SCHEDULER ============
