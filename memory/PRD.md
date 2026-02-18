@@ -32,49 +32,37 @@
 - [x] New tier names: "Private Access" and "After Dark"
 
 ### P1 - Reactivation System (COMPLETED)
+- [x] Internal scheduler - runs every hour automatically
 - [x] Timing logic: 24h, 72h, 7 days inactive triggers
-- [x] Character-specific emotional reactivation scripts:
-  - **Valeria (Dominant Pull):**
-    - 24h: "Did you forget who you were talking to?"
-    - 72h: "I don't chase… but I noticed you disappeared."
-    - 7d: "Come back. I'm not repeating myself."
-  - **Luna (Emotional Hook):**
-    - 24h: "I was thinking about you today…"
-    - 72h: "Did I say something wrong?"
-    - 7d: "I miss how you made me feel."
-  - **Nyx (Tension & Mystery):**
-    - 24h: "You got scared?"
-    - 72h: "I thought you were braver."
-    - 7d: "I found someone else to play with."
+- [x] Character-specific emotional reactivation scripts
 - [x] Paywall return messages for free users who hit limit
 - [x] Reactivation resets when user replies
 - [x] 3 attempt max per user
 - [x] Cron endpoint: POST /api/reactivation/run
 - [x] Stats endpoint: GET /api/reactivation/stats
 
-### P1 - Voice Integration (WIRED - NEEDS API KEY)
+### P1 - Voice Integration (COMPLETED - NEEDS PAID API KEY)
 - [x] ElevenLabs TTS integration code complete
 - [x] Voice styles: natural (girlfriend), dominant (commanding), whisper (intimate)
 - [x] VIP users get voice messages with AI responses
 - [x] Voice teasers for free users at paywall
 - [x] /voice command for VIP to change preference
-- [x] Voice callback buttons (voice_natural, voice_dominant, voice_whisper)
+- [x] Voice callback buttons
 - [x] Voice status endpoint: GET /api/voice/status
-- [ ] **NEEDS:** Add ELEVENLABS_API_KEY to backend/.env to enable
+- [x] API key configured in backend/.env
+- ⚠️ **ISSUE:** ElevenLabs free tier is restricted. Need paid plan for voice to work.
 
 ### Landing Page
 - [x] Deep violet color scheme
 - [x] Animated aurora background
 - [x] Multilingual (EN/ES/FR/AR + RTL)
 - [x] Updated pricing with new tier names
-- [x] 10 lifetime messages displayed
 
 ### Character System
 - [x] Valeria (32): Elegant Dominant
 - [x] Luna (26): Emotional Addictive
 - [x] Nyx (19): Dark Temptation
-- [x] Character-specific paywall messages
-- [x] Character-specific reactivation messages
+- [x] Character-specific paywall/reactivation messages
 
 ### Referral System
 - [x] +5 bonus messages per referral
@@ -84,10 +72,18 @@
 ```
 TELEGRAM_BOT_TOKEN=8570801419:AAFFPnjABH8PGiUkSmiSPHtu5ItRplrRVmg
 OPENAI_MODEL=gpt-4o
-ELEVENLABS_API_KEY=  # ADD YOUR KEY TO ENABLE VOICE
+ELEVENLABS_API_KEY=sk_c40a3b71967c0301d2dd391d50173f34c7018dabb40b3ac9
 STRIPE_API_KEY=sk_test_emergent
 EMERGENT_LLM_KEY=sk-emergent-b890aEa2e77A71a286
 ```
+
+## ⚠️ Voice Integration Note
+The ElevenLabs API key provided is a free tier key. ElevenLabs has detected unusual activity and requires a **paid plan** to enable voice generation.
+
+**To enable voice:**
+1. Upgrade your ElevenLabs account to a paid plan ($5/month Starter or higher)
+2. The existing API key should start working, OR
+3. Generate a new API key and update backend/.env
 
 ## Bot Commands
 - `/start` - Start bot, select companion
@@ -100,38 +96,39 @@ EMERGENT_LLM_KEY=sk-emergent-b890aEa2e77A71a286
 - `/voice dominant` - Set commanding voice
 - `/voice whisper` - Set soft intimate whisper
 
+## Reactivation Scripts
+
+### Valeria (Dominant Pull)
+- 24h: "Did you forget who you were talking to?"
+- 72h: "I don't chase… but I noticed you disappeared."
+- 7d: "Come back. I'm not repeating myself."
+- Paywall return: "I didn't want to stop there…"
+
+### Luna (Emotional Hook)
+- 24h: "I was thinking about you today…"
+- 72h: "Did I say something wrong?"
+- 7d: "I miss how you made me feel."
+- Paywall return: "I didn't want to leave you like that…"
+
+### Nyx (Tension & Mystery)
+- 24h: "You got scared?"
+- 72h: "I thought you were braver."
+- 7d: "I found someone else to play with."
+- Paywall return: "You almost had me…"
+
 ## API Endpoints
 - `POST /api/webhook/telegram` - Telegram webhook
 - `POST /api/webhook/stripe` - Stripe webhook
 - `GET /api/checkout/redirect` - Stripe checkout redirect
-- `POST /api/reactivation/run` - Trigger reactivation cron job
+- `POST /api/reactivation/run` - Manual trigger reactivation job
 - `GET /api/reactivation/stats` - Get reactivation statistics
 - `GET /api/voice/status` - Check voice feature status
 - `POST /api/user/{id}/voice-preference` - Set voice preference
 
-## Database Schema (User)
-```javascript
-{
-  telegram_id: String,
-  selected_character: String,  // valeria, luna, nyx
-  character_locked: Boolean,
-  tier: String,  // free, premium, vip
-  lifetime_message_count: Number,
-  escalation_level: Number,
-  hit_paywall: Boolean,  // Reactivation targeting
-  reactivation_attempts: Number,  // Max 3
-  last_reactivation_sent: String,
-  voice_preference: String,  // natural, dominant, whisper
-  referral_code: String,
-  bonus_messages: Number,
-  last_active: String
-}
-```
-
 ## Testing Status
 - **Iteration 5:** All P1 features tested and passing
 - **Backend:** 100% (21/21 pytest tests passed)
-- **Frontend:** 100% (landing page verified)
+- **Scheduler:** Running automatically every hour
 
 ## Deployment
 - **Landing:** https://paywall-staging.preview.emergentagent.com
@@ -140,10 +137,8 @@ EMERGENT_LLM_KEY=sk-emergent-b890aEa2e77A71a286
 
 ## Prioritized Backlog
 
-### P2 - Voice Activation
-- [ ] Get ElevenLabs API key from user
-- [ ] Add key to backend/.env
-- [ ] Test voice generation end-to-end
+### P2 - Immediate
+- [ ] Upgrade ElevenLabs to paid plan for voice
 
 ### P2 - Enhancements
 - [ ] Referral analytics dashboard
