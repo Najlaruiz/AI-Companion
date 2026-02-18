@@ -858,14 +858,12 @@ async def handle_switch_request(chat_id: str, user: dict):
     tier = user.get("tier", "free")
     
     if tier != "vip":
-        current = user.get("selected_character")
-        char_info = CHARACTER_PROMPTS.get(current, {})
         await send_telegram_message(
             chat_id,
-            f"She noticed you trying to leave…\n\n<i>VIP unlocks all companions.</i>",
+            "She noticed you trying to leave…\n\n<i>After Dark unlocks all companions.</i>",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "👑 Unlock All - VIP $39/mo", "callback_data": "upgrade_vip"}
+                    {"text": "🔥 After Dark – $39/mo", "callback_data": "upgrade_vip"}
                 ]]
             }
         )
