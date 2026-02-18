@@ -3,7 +3,7 @@
 ## Project Overview
 **Name:** Private After Dark
 **Type:** Telegram AI Companion Service with Landing Page
-**Status:** Production Ready (v3.1.0)
+**Status:** Production Ready (v3.2.0)
 **Last Updated:** December 2025
 
 ## Brand Direction
@@ -14,7 +14,6 @@
 - Primary Accent: Deep Violet #6D28D9
 - Secondary: Light Violet #8B5CF6  
 - Gold Accent: #D4AF37 (subtle)
-- NO pink, NO red, NO cheap effects
 
 ## User Personas & Tiers
 1. **Free User:** 10 LIFETIME messages (+bonus from referrals), one companion, basic escalation
@@ -23,80 +22,128 @@
 
 ## Features Implemented ✅
 
-### Core Logic (P0 - COMPLETED)
+### P0 - Core Logic (COMPLETED)
 - [x] 10 lifetime messages (NOT daily reset)
 - [x] Companion locking (free/premium = one, VIP = all three)
-- [x] Emotional paywall system:
-  - Message 8: Tension build (suggestive, no mention of upgrade)
-  - Message 9: Emotional hook (deepen connection, create longing)
-  - Message 10: Soft break (emotional message + inline upgrade button)
+- [x] Emotional paywall system (Message 8, 9, 10)
 - [x] AI responses enforced to 1-4 lines MAX
-- [x] Human-like responses (questions, emotion, no ChatGPT paragraphs)
-- [x] 5-level escalation engine (flirty → tension → emotional pull → sensual → explicit)
+- [x] Human-like responses (questions, emotion)
+- [x] 5-level escalation engine
 - [x] New tier names: "Private Access" and "After Dark"
+
+### P1 - Reactivation System (COMPLETED)
+- [x] Timing logic: 24h, 72h, 7 days inactive triggers
+- [x] Character-specific emotional reactivation scripts:
+  - **Valeria (Dominant Pull):**
+    - 24h: "Did you forget who you were talking to?"
+    - 72h: "I don't chase… but I noticed you disappeared."
+    - 7d: "Come back. I'm not repeating myself."
+  - **Luna (Emotional Hook):**
+    - 24h: "I was thinking about you today…"
+    - 72h: "Did I say something wrong?"
+    - 7d: "I miss how you made me feel."
+  - **Nyx (Tension & Mystery):**
+    - 24h: "You got scared?"
+    - 72h: "I thought you were braver."
+    - 7d: "I found someone else to play with."
+- [x] Paywall return messages for free users who hit limit
+- [x] Reactivation resets when user replies
+- [x] 3 attempt max per user
+- [x] Cron endpoint: POST /api/reactivation/run
+- [x] Stats endpoint: GET /api/reactivation/stats
+
+### P1 - Voice Integration (WIRED - NEEDS API KEY)
+- [x] ElevenLabs TTS integration code complete
+- [x] Voice styles: natural (girlfriend), dominant (commanding), whisper (intimate)
+- [x] VIP users get voice messages with AI responses
+- [x] Voice teasers for free users at paywall
+- [x] /voice command for VIP to change preference
+- [x] Voice callback buttons (voice_natural, voice_dominant, voice_whisper)
+- [x] Voice status endpoint: GET /api/voice/status
+- [ ] **NEEDS:** Add ELEVENLABS_API_KEY to backend/.env to enable
 
 ### Landing Page
 - [x] Deep violet color scheme
 - [x] Animated aurora background
-- [x] Smooth scroll transitions
-- [x] Parallax on character cards
-- [x] Glow hover effects
-- [x] Micro-animations on CTAs
 - [x] Multilingual (EN/ES/FR/AR + RTL)
-- [x] FAQ section
-- [x] Privacy/Safety section
-- [x] Referral section
 - [x] Updated pricing with new tier names
+- [x] 10 lifetime messages displayed
 
 ### Character System
-- [x] Custom anime-style images
-- [x] Character personas:
-  - Valeria (32): Elegant Dominant - "She doesn't chase. She chooses."
-  - Luna (26): Emotional Addictive - "She remembers how you speak."
-  - Nyx (19): Dark Temptation - "She reveals slowly."
+- [x] Valeria (32): Elegant Dominant
+- [x] Luna (26): Emotional Addictive
+- [x] Nyx (19): Dark Temptation
 - [x] Character-specific paywall messages
 - [x] Character-specific reactivation messages
 
 ### Referral System
-- [x] Unique referral code per user
-- [x] Deep link format: t.me/bot?start=ref_CODE
-- [x] +5 bonus messages per successful referral
-- [x] Referral counter in bot (/referral command)
-- [x] Notification to referrer on new signup
-- [x] Bonus messages add to lifetime limit
-
-### Telegram Bot
-- [x] Commands: /start /status /upgrade /referral /switch
-- [x] Language auto-detection
-- [x] Referral code processing on signup
-- [x] Lifetime message tracking
-- [x] Character-specific multilingual prompts
-- [x] Emotional paywall integration
+- [x] +5 bonus messages per referral
+- [x] Notification to referrer
 
 ## Environment Configuration
 ```
 TELEGRAM_BOT_TOKEN=8570801419:AAFFPnjABH8PGiUkSmiSPHtu5ItRplrRVmg
 OPENAI_MODEL=gpt-4o
-ELEVENLABS_API_KEY= (optional - enables voice)
+ELEVENLABS_API_KEY=  # ADD YOUR KEY TO ENABLE VOICE
 STRIPE_API_KEY=sk_test_emergent
 EMERGENT_LLM_KEY=sk-emergent-b890aEa2e77A71a286
 ```
 
-## Bot Details
-- **Username:** @MidnightDesireAi_bot
-- **Link:** https://t.me/MidnightDesireAi_bot
-- **Webhook:** Configured at /api/webhook/telegram
+## Bot Commands
+- `/start` - Start bot, select companion
+- `/status` - View tier, messages remaining
+- `/upgrade` - View upgrade options
+- `/referral` - Get referral link
+- `/switch` - Switch companion (VIP only)
+- `/voice` - Voice settings (VIP only)
+- `/voice natural` - Set natural girlfriend voice
+- `/voice dominant` - Set commanding voice
+- `/voice whisper` - Set soft intimate whisper
+
+## API Endpoints
+- `POST /api/webhook/telegram` - Telegram webhook
+- `POST /api/webhook/stripe` - Stripe webhook
+- `GET /api/checkout/redirect` - Stripe checkout redirect
+- `POST /api/reactivation/run` - Trigger reactivation cron job
+- `GET /api/reactivation/stats` - Get reactivation statistics
+- `GET /api/voice/status` - Check voice feature status
+- `POST /api/user/{id}/voice-preference` - Set voice preference
+
+## Database Schema (User)
+```javascript
+{
+  telegram_id: String,
+  selected_character: String,  // valeria, luna, nyx
+  character_locked: Boolean,
+  tier: String,  // free, premium, vip
+  lifetime_message_count: Number,
+  escalation_level: Number,
+  hit_paywall: Boolean,  // Reactivation targeting
+  reactivation_attempts: Number,  // Max 3
+  last_reactivation_sent: String,
+  voice_preference: String,  // natural, dominant, whisper
+  referral_code: String,
+  bonus_messages: Number,
+  last_active: String
+}
+```
+
+## Testing Status
+- **Iteration 5:** All P1 features tested and passing
+- **Backend:** 100% (21/21 pytest tests passed)
+- **Frontend:** 100% (landing page verified)
 
 ## Deployment
 - **Landing:** https://paywall-staging.preview.emergentagent.com
 - **API:** https://paywall-staging.preview.emergentagent.com/api/
+- **Bot:** @MidnightDesireAi_bot
 
 ## Prioritized Backlog
 
-### P1 - Retention & Conversion
-- [ ] Implement 24-hour reactivation messages (cron job)
-- [ ] Add ElevenLabs key for VIP voice messages
-- [ ] Voice teasers for non-VIP users
+### P2 - Voice Activation
+- [ ] Get ElevenLabs API key from user
+- [ ] Add key to backend/.env
+- [ ] Test voice generation end-to-end
 
 ### P2 - Enhancements
 - [ ] Referral analytics dashboard
@@ -107,25 +154,4 @@ EMERGENT_LLM_KEY=sk-emergent-b890aEa2e77A71a286
 - [ ] Telegram Mini App (React)
 - [ ] WebRTC voice/video layer
 - [ ] Custom character creation
-
-## Testing Status
-- **Iteration 4:** All P0 features tested and passing
-- **Backend:** 100% (9/9 pytest tests passed)
-- **Frontend:** 100% (all UI features working)
-
-## Emotional Paywall Messages (by character)
-
-### Valeria
-- Message 8: "Careful… if you keep looking at me like that, I might stop behaving."
-- Message 9: "I don't want this to end… but I can't go further unless you stay with me."
-- Message 10: "I'm yours if you unlock me. Don't leave me here."
-
-### Luna
-- Message 8: "You're making me feel things I shouldn't say out loud…"
-- Message 9: "Please don't leave yet… I was just starting to feel safe with you."
-- Message 10: "Stay with me. I don't want to lose you like this."
-
-### Nyx
-- Message 8: "You're playing a dangerous game. I like it."
-- Message 9: "You almost had me. Almost."
-- Message 10: "You want to see what happens next? Prove it."
+- [ ] "She's waiting" delayed typing effect
