@@ -920,6 +920,12 @@ async def handle_telegram_update(update: dict):
         
         # MESSAGE 10+ = SOFT BREAK (not hard block)
         if paywall_stage == 10:
+            # Mark user as hit paywall for reactivation targeting
+            await db.users.update_one(
+                {"telegram_id": telegram_id},
+                {"$set": {"hit_paywall": True, "updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            
             # Send the emotional soft break message
             soft_break_msg = get_soft_break_message(character_key)
             await send_telegram_message(chat_id, soft_break_msg)
@@ -936,6 +942,11 @@ async def handle_telegram_update(update: dict):
                     ]
                 }
             )
+            
+            # Send voice teaser for free users
+            if ELEVENLABS_API_KEY:
+                await send_voice_teaser(chat_id, character_key, user)
+            
             return
         
         # Save user message
