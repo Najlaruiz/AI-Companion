@@ -909,6 +909,11 @@ async def handle_telegram_update(update: dict):
             await handle_switch_request(chat_id, user)
             return
         
+        # /voice command - VIP voice settings
+        if text == "/voice" or text.startswith("/voice "):
+            await handle_voice_settings(chat_id, user, text)
+            return
+        
         # Check if user has selected a companion
         if not user.get("selected_character"):
             await send_companion_selection(chat_id, user)
