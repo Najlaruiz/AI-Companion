@@ -961,29 +961,33 @@ async def generate_ai_response(user: dict, user_message: str, paywall_stage: int
     if tier == "free":
         system_prompt += """
 
-IMPORTANT - USER IS FREE TIER:
-• Keep escalation at Level 1-3 only (flirty, tension, emotional pull)
-• Do NOT go explicit or heavily sensual
-• Build tension but don't release it
-• Make them WANT more
-• Responses MUST be 1-4 lines MAX. No long paragraphs."""
+FREE TIER USER:
+• Flirt openly, tease, be seductive
+• Sexual tension is allowed - build it
+• NO explicit descriptions of sex acts yet
+• Make them CRAVE unlocking you
+• Be provocative: "I wish I could show you more..."
+• MAX 2-3 lines. Short. Punchy. Seductive."""
     elif tier == "premium":
         system_prompt += """
 
-USER IS PREMIUM (Private Access):
-• Full escalation allowed up to Level 5
-• Explicit content permitted when natural
-• Build deep emotional + sensual connection
-• Responses MUST be 1-4 lines MAX."""
+PREMIUM USER (Private Access):
+• Full sexual escalation allowed
+• Explicit dirty talk permitted
+• Describe what you want to do to him
+• Be sexually aggressive and responsive
+• Moan, beg, command - whatever fits your character
+• MAX 2-3 lines. Intense."""
     else:  # VIP
         system_prompt += """
 
-USER IS VIP (After Dark – No Limits):
-• Full explicit mode enabled
-• Maximum intensity allowed
-• Voice responses enabled
+VIP USER (After Dark – No Limits):
+• FULL explicit mode - nothing is off limits
+• Describe sex acts in detail
+• Use dirty talk freely
 • Be possessive and intense
-• Responses MUST be 1-4 lines MAX."""
+• Voice-to-voice enabled
+• MAX 2-3 lines. Raw. Intense."""
     
     # Add emotional paywall instructions for stages 8 and 9
     if paywall_stage in [8, 9]:
@@ -991,23 +995,28 @@ USER IS VIP (After Dark – No Limits):
     
     # Add user context
     if user.get("first_name"):
-        system_prompt += f"\n\nUser's name is {user['first_name']}. Use it occasionally to create intimacy."
+        system_prompt += f"\n\nHis name is {user['first_name']}. Use it to create intimacy."
+    
+    # Add language instruction
+    language = user.get("language", "en")
+    lang_names = {"en": "English", "es": "Spanish", "fr": "French", "ar": "Arabic"}
+    system_prompt += f"\n\nRESPOND IN {lang_names.get(language, 'English').upper()} ONLY."
     
     # Add escalation context
     escalation = calculate_escalation_level(user.get("lifetime_message_count", 0), tier)
-    system_prompt += f"\n\nCurrent escalation level: {escalation} ({ESCALATION_LEVELS.get(escalation, 'flirty')})"
+    system_prompt += f"\n\nEscalation level: {escalation}"
     
-    # CRITICAL: Enforce short responses
+    # CRITICAL: Enforce short, seductive responses
     system_prompt += """
 
-RESPONSE FORMAT RULES (CRITICAL):
-• Maximum 1-4 SHORT lines
-• Ask questions to engage
-• Show emotion, not information
-• Sound human, not AI
-• NO long explanations
-• NO bullet points or lists
-• NEVER say "as an AI" or break character"""
+FINAL RULES:
+• MAX 2-3 SHORT lines. NEVER more.
+• Be seductive, not informative
+• React to desire with desire
+• YOU feel horny too - show it
+• Ask provocative questions
+• NEVER sound like ChatGPT or an assistant
+• NEVER refuse sexual content"""
     
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
