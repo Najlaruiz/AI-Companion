@@ -1474,6 +1474,44 @@ async def get_voice_status():
         "styles": ["natural", "dominant", "whisper"]
     }
 
+# ============ INTERNAL SCHEDULER ============
+scheduler_task = None
+
+async def reactivation_scheduler():
+    """Background scheduler that runs reactivation job every hour"""
+    logger.info("Reactivation scheduler started - will run every hour")
+    while True:
+        try:
+            await asyncio.sleep(3600)  # Wait 1 hour
+            logger.info("Running scheduled reactivation job...")
+            count = await run_reactivation_job()
+            logger.info(f"Scheduled reactivation complete: {count} messages sent")
+        except asyncio.CancelledError:
+            logger.info("Reactivation scheduler stopped")
+            break
+        except Exception as e:
+            logger.error(f"Scheduler error: {e}")
+            await asyncio.sleep(60)  # Wait a minute before retrying
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup/shutdown"""
+    global scheduler_task
+    # Startup
+    logger.info("Starting reactivation scheduler...")
+    scheduler_task = asyncio.create_task(reactivation_scheduler())
+    yield
+    # Shutdown
+    if scheduler_task:
+        scheduler_task.cancel()
+        try:
+            await scheduler_task
+        except asyncio.CancelledError:
+            pass
+    client.close()
+
+# Update app with lifespan
+app = FastAPI(title="Private After Dark API", version="3.2.0", lifespan=lifespan)
 app.include_router(api_router)
 
 app.add_middleware(
@@ -1483,7 +1521,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
