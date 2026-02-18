@@ -997,6 +997,11 @@ async def handle_telegram_update(update: dict):
             await handle_voice_settings(chat_id, user, text)
             return
         
+        # Handle VOICE MESSAGES (VIP feature - voice to voice)
+        if message.get("voice"):
+            await handle_voice_message(chat_id, telegram_id, user, message.get("voice"))
+            return
+        
         # Check if user has selected a companion
         if not user.get("selected_character"):
             await send_companion_selection(chat_id, user)
