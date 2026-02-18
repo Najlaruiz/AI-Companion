@@ -1081,6 +1081,24 @@ async def handle_callback(callback: dict):
         )
         return
     
+    # Voice preference callbacks (VIP only)
+    if data.startswith("voice_"):
+        preference = data.replace("voice_", "")
+        if preference in ["natural", "dominant", "whisper"]:
+            tier = user.get("tier", "free")
+            if tier == "vip":
+                await update_user(telegram_id, {"voice_preference": preference})
+                style_descriptions = {
+                    "natural": "Natural girlfriend voice",
+                    "dominant": "Commanding & confident",
+                    "whisper": "Soft & intimate whisper"
+                }
+                await answer_callback_query(callback_id, f"Voice: {style_descriptions[preference]}")
+                await send_telegram_message(chat_id, f"🎙 Voice set to: <b>{style_descriptions[preference]}</b>")
+            else:
+                await answer_callback_query(callback_id, "VIP only feature")
+        return
+    
     await answer_callback_query(callback_id)
 
 async def send_companion_selection(chat_id: str, user: dict):
