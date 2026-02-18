@@ -967,13 +967,14 @@ async def handle_telegram_update(update: dict):
             lang_code
         )
         
-        # /start command - Show companion selection
+        # /start command - Show LANGUAGE SELECTION FIRST
         if text == "/start" or text.startswith("/start"):
             # Handle referral
             if text.startswith("/start ref_"):
                 await process_referral(telegram_id, text.replace("/start ref_", ""), user)
             
-            await send_companion_selection(chat_id, user)
+            # Always show language selection first
+            await send_language_selection(chat_id, user)
             return
         
         # /status command
