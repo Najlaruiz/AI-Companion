@@ -1329,24 +1329,34 @@ async def send_referral_info(chat_id: str, user: dict):
     )
 
 async def handle_switch_request(chat_id: str, user: dict):
-    """Handle companion switch request"""
+    """Handle companion switch request - show jealousy for non-VIP"""
     tier = user.get("tier", "free")
+    current_char = user.get("selected_character")
+    char_info = CHARACTER_PROMPTS.get(current_char, {}) if current_char else {}
     
     if tier != "vip":
+        # Jealousy response from current companion
+        jealousy_messages = {
+            "valeria": "You think you can just leave?\n\n<i>\"I don't share. And I don't chase.\"</i>",
+            "luna": "She noticed you trying to leave...\n\n<i>\"Please... don't go to her.\"</i>",
+            "nyx": "She caught you looking elsewhere...\n\n<i>\"Bored already? I haven't even started.\"</i>"
+        }
+        msg = jealousy_messages.get(current_char, "She noticed you trying to leave...")
+        
         await send_telegram_message(
             chat_id,
-            "She noticed you trying to leave…\n\n<i>After Dark unlocks all companions.</i>",
+            f"{char_info.get('emoji', '')} {msg}\n\n🔥 <b>After Dark unlocks all companions.</b>",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "🔥 After Dark – $39/mo", "callback_data": "upgrade_vip"}
+                    {"text": "🔥 Unlock All – After Dark $39", "callback_data": "upgrade_vip"}
                 ]]
             }
         )
     else:
-        # VIP can switch
+        # VIP can switch - show all options
         await send_telegram_message(
             chat_id,
-            "🔄 <b>Switch Companion</b>",
+            "🔄 <b>Switch Companion</b>\n\n<i>Who do you want now?</i>",
             reply_markup={
                 "inline_keyboard": [
                     [{"text": "👑 Valeria – Elegant Dominant", "callback_data": "select_valeria"}],
