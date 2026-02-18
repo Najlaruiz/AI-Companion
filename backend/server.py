@@ -673,6 +673,7 @@ async def send_reactivation_message(user: dict):
     # Check if user hit paywall (for special paywall return message)
     hit_paywall = user.get("hit_paywall", False)
     tier = user.get("tier", "free")
+    language = user.get("language", "en")
     
     # Get the appropriate message
     scripts = REACTIVATION_SCRIPTS.get(character_key, REACTIVATION_SCRIPTS["valeria"])
@@ -690,6 +691,12 @@ async def send_reactivation_message(user: dict):
     try:
         await send_telegram_message(telegram_id, full_message)
         
+        # Send voice version of the reactivation message (Edge TTS - always available)
+        voice_style = "whisper" if period == "7d" else "natural"
+        audio_data = await generate_voice_message(message, character_key, voice_style, language)
+        if audio_data:
+            await send_voice_message(telegram_id, audio_data)
+        
         # For free users who hit paywall, send upgrade CTA
         if hit_paywall and tier == "free":
             backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
@@ -704,9 +711,18 @@ async def send_reactivation_message(user: dict):
                 }
             )
         
-        # For free users, offer voice teaser
-        elif tier == "free" and ELEVENLABS_API_KEY:
-            await send_voice_teaser(telegram_id, character_key, user)
+        # For free users, offer voice teaser with upgrade prompt
+        elif tier == "free":
+            backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+            await send_telegram_message(
+                telegram_id,
+                "🎙 <i>Unlock unlimited voice messages</i>",
+                reply_markup={
+                    "inline_keyboard": [[
+                        {"text": "🔥 After Dark – $39/mo", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
+                    ]]
+                }
+            )
         
         # Update reactivation tracking
         await db.users.update_one(
