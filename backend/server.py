@@ -1208,16 +1208,8 @@ async def handle_telegram_update(update: dict):
         # Save AI response
         await save_chat_message(telegram_id, character_key, "assistant", response, new_escalation)
         
-        # No message counter shown - keep the immersion
+        # Send text response only (voice disabled for now)
         await send_telegram_message(chat_id, response)
-        
-        # VIP users get voice messages (Edge TTS - always available)
-        tier = user.get("tier", "free")
-        if tier == "vip":
-            voice_style = user.get("voice_preference", "natural")
-            language = user.get("language", "en")
-            audio_data = await generate_voice_message(response, character_key, voice_style, language)
-            if audio_data:
                 await send_voice_message(chat_id, audio_data)
         
     except Exception as e:
