@@ -742,31 +742,55 @@ async def handle_voice_message(chat_id: str, telegram_id: str, user: dict, voice
     if audio_data:
         await send_voice_message(chat_id, audio_data)
 
-async def send_voice_teaser(chat_id: str, character_key: str, user: dict):
-    """Send a voice teaser to encourage VIP upgrade"""
+async def send_voice_teaser(chat_id: str, character_key: str, user: dict, context_text: str = None):
+    """Send a contextual voice teaser to encourage VIP upgrade"""
     tier = user.get("tier", "free")
     if tier == "vip":
         return  # VIP already has voice access
     
-    voice_config = EDGE_VOICE_CONFIG.get(character_key, EDGE_VOICE_CONFIG["valeria"])
-    teaser_text = voice_config["teaser_text"]
     language = user.get("language", "en")
     
-    # Generate a short teaser
-    voice_style = user.get("voice_preference", "whisper")  # Use whisper for teasers
+    # Generate contextual teaser based on character and conversation
+    teasers = {
+        "valeria": {
+            "en": ["Do you want to hear my voice?", "I could tell you more... out loud.", "Listen to me."],
+            "es": ["¿Quieres escuchar mi voz?", "Podría decirte más... en voz alta.", "Escúchame."],
+            "fr": ["Tu veux entendre ma voix?", "Je pourrais te dire plus... à voix haute.", "Écoute-moi."],
+            "ar": ["هل تريد سماع صوتي؟", "يمكنني إخبارك المزيد... بصوت عالٍ.", "استمع لي."]
+        },
+        "luna": {
+            "en": ["I wish you could hear how I sound...", "My voice is softer than you think.", "Can I whisper to you?"],
+            "es": ["Ojalá pudieras escuchar cómo sueno...", "Mi voz es más suave de lo que piensas.", "¿Puedo susurrarte?"],
+            "fr": ["J'aimerais que tu entendes ma voix...", "Ma voix est plus douce que tu ne le penses.", "Je peux te murmurer?"],
+            "ar": ["أتمنى لو تسمع صوتي...", "صوتي أنعم مما تعتقد.", "هل يمكنني أن أهمس لك؟"]
+        },
+        "nyx": {
+            "en": ["Imagine hearing me say that.", "My voice would make you crazy.", "You're not ready for how I sound."],
+            "es": ["Imagina escucharme decir eso.", "Mi voz te volvería loco.", "No estás listo para cómo sueno."],
+            "fr": ["Imagine m'entendre dire ça.", "Ma voix te rendrait fou.", "Tu n'es pas prêt pour ma voix."],
+            "ar": ["تخيل سماعي أقول ذلك.", "صوتي سيجنّك.", "لست مستعداً لصوتي."]
+        }
+    }
+    
+    char_teasers = teasers.get(character_key, teasers["valeria"])
+    lang_teasers = char_teasers.get(language, char_teasers["en"])
+    teaser_text = random.choice(lang_teasers)
+    
+    # Generate voice
+    voice_style = "whisper"
     audio_data = await generate_voice_message(teaser_text, character_key, voice_style, language)
     
     if audio_data:
         await send_voice_message(chat_id, audio_data)
-        # Send upgrade prompt
+        # Direct Stripe checkout link
         backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
         telegram_id = user.get('telegram_id')
         await send_telegram_message(
             chat_id,
-            "🎙 <i>Want to hear more?</i>",
+            "🎙",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "🔥 Unlock Full Voice – After Dark", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
+                    {"text": "🔥 Unlock Voice – After Dark $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
                 ]]
             }
         )
