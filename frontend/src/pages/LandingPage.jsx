@@ -805,7 +805,7 @@ const CharacterCard = ({ character, botLink, t, index }) => {
         </div>
         
         <a
-          href={botLink}
+          href={`${botLink}?start=char_${character.id}_${lang}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl glass glass-hover font-medium text-sm transition-all duration-300"
