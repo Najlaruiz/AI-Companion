@@ -1468,8 +1468,10 @@ async def send_referral_info(chat_id: str, user: dict):
 async def handle_switch_request(chat_id: str, user: dict):
     """Handle companion switch request - show jealousy for non-VIP"""
     tier = user.get("tier", "free")
+    telegram_id = user.get("telegram_id")
     current_char = user.get("selected_character")
     char_info = CHARACTER_PROMPTS.get(current_char, {}) if current_char else {}
+    backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
     
     if tier != "vip":
         # Jealousy response from current companion
