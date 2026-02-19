@@ -1145,8 +1145,9 @@ async def handle_telegram_update(update: dict):
         # Get emotional paywall stage (0 = normal, 8/9/10 = paywall stages)
         paywall_stage = get_emotional_paywall_stage(user)
         character_key = user.get("selected_character")
+        character = CHARACTER_PROMPTS.get(character_key, CHARACTER_PROMPTS["valeria"])
         
-        # MESSAGE 10+ = SOFT BREAK (not hard block)
+        # MESSAGE 10+ = SOFT EMOTIONAL BREAK (not hard block)
         if paywall_stage == 10:
             # Mark user as hit paywall for reactivation targeting
             await db.users.update_one(
@@ -1154,24 +1155,24 @@ async def handle_telegram_update(update: dict):
                 {"$set": {"hit_paywall": True, "updated_at": datetime.now(timezone.utc).isoformat()}}
             )
             
-            # Send the emotional soft break message
-            soft_break_msg = get_soft_break_message(character_key)
-            await send_telegram_message(chat_id, soft_break_msg)
+            # Send the character-specific emotional paywall message
+            paywall_msg = character.get("paywall_line", "I want to tell you more... but that's only for my private members.")
+            await send_telegram_message(chat_id, f"{character['emoji']} {paywall_msg}")
             
-            # Send upgrade button inline (not a cold system message)
+            # Send upgrade button with direct Stripe URLs
             backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
             await send_telegram_message(
                 chat_id,
                 "🔓",
                 reply_markup={
                     "inline_keyboard": [
-                        [{"text": "🔒 Private Access – $19/mo", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}],
-                        [{"text": "🔥 After Dark Unlimited – $39/mo", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}]
+                        [{"text": "🔒 Unlock Her – $19", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}],
+                        [{"text": "🔥 Full Access – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}]
                     ]
                 }
             )
             
-            # Send voice teaser for free users (Edge TTS - always available)
+            # Send voice teaser
             await send_voice_teaser(chat_id, character_key, user)
             
             return
