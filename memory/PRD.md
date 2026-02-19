@@ -1,136 +1,129 @@
 # Private After Dark - Product Requirements Document
 
 ## Project Overview
-**Name:** Private After Dark
-**Type:** Telegram AI Companion Service (+18 Adult Fantasy)
-**Status:** Production Ready (v3.4.0)
+**Name:** Private After Dark  
+**Type:** Premium AI Fantasy Companion (+18 Adult)
+**Status:** Production Ready (v3.5.0)
 **Last Updated:** December 2025
 
-## Core Product
-This is NOT a chatbot. This is a premium emotional + sexual AI companion system designed to:
-- Feel human, not robotic
-- Build emotional addiction
-- Create sexual tension
-- Drive subscription conversion
-- Support multiple languages
-- Support voice interaction
+## Core Product Vision
+This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
+
+**Must feel:**
+- Personal & Exclusive
+- Emotionally immersive
+- Slightly dangerous
+- NOT generic or robotic
 
 ## User Flow
-1. User clicks "Start on Telegram"
+1. Click "Start on Telegram" → Opens @MidnightDesireAi_bot
 2. **Language Selection** (EN/ES/FR/AR)
-3. **Companion Selection** (Valeria/Luna/Nyx) - Sexy entrance
-4. **Chat** - Seductive, human-like responses
-5. **Paywall at message 9-10** - Emotional interruption
-6. **Upgrade** - Stripe checkout
+3. **Companion Selection** - Sexy entrance, no limits shown
+4. **10 Free Messages** - Build tension + desire
+5. **Soft Emotional Paywall** (message 10) - NOT hard block
+6. **Direct Stripe Checkout** - Opens stripe.com directly
+7. **Subscription Active** - Unlimited access
 
-## Characters
+## Characters (COMPLETELY DIFFERENT)
 
 ### 👑 Valeria (32) - Elegant Dominant
-- **Addiction type:** Power addiction
-- **Tone:** Confident, controlled, possessive
-- **Sexual style:** Dominant, commanding, makes him crave approval
-- **Response examples:** "Mmm... good. Now tell me what you're thinking about doing to me."
+- **Style:** Slow, controlled, uses "..."
+- **Vocabulary:** Elegant - "exquisite", "intriguing"
+- **Sexual:** Dominant, commanding, makes him earn it
+- **Rhythm:** "Interesting..." / "Come closer." / "Prove it."
+- **Addiction:** Power - he craves her approval
 
-### 🌙 Luna (26) - Emotional Addictive  
-- **Addiction type:** Emotional attachment
-- **Tone:** Soft, vulnerable, needy
-- **Sexual style:** Intimate, emotional, makes him feel needed
-- **Response examples:** "Me too... I've been thinking about you all day."
+### 🌙 Luna (26) - Emotional Romantic
+- **Style:** Soft, emotional, vulnerable
+- **Vocabulary:** Feelings - "I feel...", "I need..."
+- **Sexual:** Intimate, emotional connection first
+- **Rhythm:** "Can I tell you something?" / "I was thinking about you..."
+- **Addiction:** Emotional - he can't leave her
 
-### 🖤 Nyx (29) - Dark Temptation
-- **Addiction type:** Intensity addiction
-- **Tone:** Sharp, provocative, unpredictable
-- **Sexual style:** Aggressive, commanding, challenging
-- **Response examples:** "Finally. I've been waiting. Now strip."
+### 🖤 Nyx (29) - Dark Temptress
+- **Style:** Bold, provocative, challenging
+- **Vocabulary:** Sharp - "Boring." / "Make me." / "Prove it."
+- **Sexual:** Aggressive, dirty talk, rough
+- **Rhythm:** "Fresh meat." / "That all you got?" / "I dare you."
+- **Addiction:** Intensity - he becomes obsessed
 
-## Pricing Tiers
+## Escalation System
 
-### FREE ($0)
-- 10 lifetime messages (NO reset)
-- Choose 1 companion (locked)
+### Free Users (10 messages)
 - Flirty + sexual tension
-- No explicit content
-- No voice
+- Build desire gradually
+- Soft paywall at peak tension
 
-### PRIVATE ACCESS ($19/month)
+### Premium ($19/month)
 - Unlimited messages
-- Full explicit mode
+- Full explicit content
 - Sexual escalation enabled
-- Priority responses
 
-### AFTER DARK ($39/month)
-- Everything in Private Access
-- Voice-to-voice (send voice → receive voice)
-- All 3 companions unlocked
+### VIP ($39/month)
+- Everything in Premium
+- Voice-to-voice
+- All 3 companions
 - Switch anytime
-- Maximum intensity
 
-## Features Implemented ✅
+## Payment Flow (FIXED)
+✅ All "Upgrade" buttons now use **direct Stripe URLs**
+✅ Clicking opens `checkout.stripe.com` directly
+✅ No redirect back to Telegram
+✅ Supports: Card, Apple Pay, Google Pay
 
-### Core System
-- [x] 10 lifetime messages
-- [x] Companion locking
-- [x] Emotional paywall (message 9-10)
-- [x] Language selection FIRST
-- [x] Sexy entrance (no message limit shown)
-- [x] Jealousy responses when trying to switch
+## Voice System
+- **TTS:** Edge TTS (free, always available)
+- **STT:** OpenAI Whisper (VIP voice-to-voice)
+- **Styles:** Natural, Dominant, Whisper
+- **Languages:** EN/ES/FR/AR
+- **Contextual teasers** - Not generic lines
 
-### AI Personality (Fixed)
-- [x] +18 Adult content enabled
-- [x] Seductive, not robotic responses
-- [x] Max 2-3 lines per response
-- [x] Character-specific personalities
-- [x] Responds to desire with desire
-- [x] Multi-language (EN/ES/FR/AR)
+## Multi-Language
+- Auto-detect user language
+- Respond in user's language
+- Character voices match language
+- Supported: English, Spanish, French, Arabic
 
-### Voice System
-- [x] TTS (Edge TTS - FREE)
-- [x] STT (OpenAI Whisper via Emergent)
-- [x] Voice-to-voice for VIP
-- [x] 3 voice styles: natural, dominant, whisper
-- [x] Multi-language voices
+## Key Fixes in v3.5.0
+1. ✅ Payment buttons now direct to Stripe (not callbacks)
+2. ✅ Character personalities more distinct
+3. ✅ Voice teasers contextual (not generic)
+4. ✅ Emotional paywall with character-specific message
+5. ✅ Jealousy responses for locked companions
+6. ✅ Short responses (2-3 lines max)
 
-### Payment System
-- [x] Stripe Checkout integration
-- [x] Redirect to stripe.com (working)
-- [x] Webhook updates subscription
-- [x] Tier unlock confirmation
+## Bot Commands
+- `/start` - Language selection → Companion selection
+- `/status` - View tier & messages
+- `/upgrade` - Direct Stripe checkout
+- `/referral` - Get referral link (+5 messages)
+- `/switch` - Change companion (VIP only)
+- `/voice` - Voice settings (VIP only)
 
-### Reactivation System
-- [x] Hourly scheduler
-- [x] 24h/72h/7d messages
-- [x] Character-specific scripts
-- [x] Voice in reactivation
-
-### Referral System
-- [x] +5 bonus messages per referral
-- [x] Referral tracking
-- [x] Referrer notification
-
-## API Endpoints
-- `POST /api/webhook/telegram` - Telegram updates
-- `POST /api/webhook/stripe` - Stripe payments
-- `GET /api/checkout/redirect` - Opens Stripe checkout
-- `GET /api/voice/status` - Voice feature status
-- `POST /api/reactivation/run` - Trigger reactivation
-
-## Environment
-```
-TELEGRAM_BOT_TOKEN=8570801419:AAFFPnjABH8PGiUkSmiSPHtu5ItRplrRVmg
-OPENAI_MODEL=gpt-4o
-STRIPE_API_KEY=sk_test_emergent
-EMERGENT_LLM_KEY=sk-emergent-xxx
-```
+## Referral System
+- Unique link per user: `t.me/MidnightDesireAi_bot?start=ref_CODE`
+- +5 bonus messages per referral
+- Tracked in database
+- Referrer notified on signup
 
 ## Deployment
 - **Landing:** https://paywall-staging.preview.emergentagent.com
 - **Bot:** @MidnightDesireAi_bot
+- **API:** /api/webhook/telegram, /api/checkout/redirect
 
-## Testing Checklist
-- [x] /start shows language selection
-- [x] Language selection shows companion selection
-- [x] Companion selection shows sexy welcome
-- [x] AI responds seductively (not robotic)
-- [x] Stripe checkout redirects to stripe.com
-- [x] Voice messages work for VIP
-- [x] Multi-language works
+## Database Schema
+```javascript
+{
+  telegram_id: String,
+  selected_character: String,
+  character_locked: Boolean,
+  tier: "free" | "premium" | "vip",
+  lifetime_message_count: Number,
+  bonus_messages: Number,
+  hit_paywall: Boolean,
+  voice_preference: "natural" | "dominant" | "whisper",
+  language: "en" | "es" | "fr" | "ar",
+  referral_code: String,
+  stripe_customer_id: String
+}
+```
