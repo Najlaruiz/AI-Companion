@@ -1231,24 +1231,24 @@ async def handle_callback(callback: dict):
     # Character selection
     if data.startswith("select_"):
         character = data.replace("select_", "")
+        backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
         
         # Check if user already has a locked companion (free/premium)
         if user.get("character_locked") and user.get("tier") != "vip":
             current_char = user.get("selected_character")
             if current_char and current_char != character:
-                # Locked - show jealousy message
+                # Locked - show jealousy message with DIRECT Stripe URL
                 current_info = CHARACTER_PROMPTS.get(current_char, {})
                 other_info = CHARACTER_PROMPTS.get(character, {})
                 await answer_callback_query(callback_id, "She noticed...")
                 jealousy_msg = f"{current_info.get('emoji', '')} <b>{current_info.get('name', 'She')}</b> noticed you looking at {other_info.get('name', 'her')}...\n\n"
-                jealousy_msg += "<i>\"You think you can just leave me?\"</i>\n\n"
-                jealousy_msg += "🔥 <b>Unlock all companions with After Dark.</b>"
+                jealousy_msg += "<i>\"You think you can just leave me?\"</i>"
                 await send_telegram_message(
                     chat_id,
                     jealousy_msg,
                     reply_markup={
                         "inline_keyboard": [[
-                            {"text": "🔥 Unlock All – After Dark $39", "callback_data": "upgrade_vip"}
+                            {"text": "🔥 Unlock All – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
                         ]]
                     }
                 )
@@ -1270,7 +1270,7 @@ async def handle_callback(callback: dict):
             await send_telegram_message(chat_id, intro)
         return
     
-    # Upgrade callbacks
+    # Upgrade callbacks - These still work as backup but direct URLs are preferred
     if data == "upgrade_premium":
         await answer_callback_query(callback_id)
         backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
