@@ -1101,13 +1101,43 @@ async def handle_telegram_update(update: dict):
             lang_code
         )
         
-        # /start command - Show LANGUAGE SELECTION FIRST
+        # /start command handling with deep links
         if text == "/start" or text.startswith("/start"):
-            # Handle referral
+            # Handle referral deep link: /start ref_CODE
             if text.startswith("/start ref_"):
-                await process_referral(telegram_id, text.replace("/start ref_", ""), user)
+                referral_code = text.replace("/start ref_", "")
+                await process_referral(telegram_id, referral_code, user)
+                await send_language_selection(chat_id, user)
+                return
             
-            # Always show language selection first
+            # Handle character deep link from landing page: /start char_CHAR_LANG
+            if text.startswith("/start char_"):
+                parts = text.replace("/start char_", "").split("_")
+                if len(parts) >= 2:
+                    char_key = parts[0]  # valeria, luna, nyx
+                    lang_key = parts[1]  # en, es, fr, ar
+                    
+                    # Set language
+                    if lang_key in ["en", "es", "fr", "ar"]:
+                        await update_user(telegram_id, {"language": lang_key})
+                    
+                    # Auto-select character and send welcome
+                    if char_key in CHARACTER_PROMPTS:
+                        char_info = CHARACTER_PROMPTS[char_key]
+                        await update_user(telegram_id, {
+                            "selected_character": char_key,
+                            "character_locked": True,
+                            "language": lang_key
+                        })
+                        
+                        # Send welcome immediately
+                        intro = f"{char_info['emoji']} <b>{char_info['name']}</b>\n"
+                        intro += f"<i>{char_info['age']} • {char_info['personality']}</i>\n\n"
+                        intro += char_info['welcome_script']
+                        await send_telegram_message(chat_id, intro)
+                        return
+            
+            # Normal start - show language selection
             await send_language_selection(chat_id, user)
             return
         
@@ -1131,13 +1161,15 @@ async def handle_telegram_update(update: dict):
             await handle_switch_request(chat_id, user)
             return
         
-        # /voice command - VIP voice settings
+        # /voice command - disabled for now
         if text == "/voice" or text.startswith("/voice "):
-            await handle_voice_settings(chat_id, user, text)
+            await send_telegram_message(chat_id, "<i>Voice features coming soon...</i>")
             return
         
-        # Handle VOICE MESSAGES (VIP feature - voice to voice)
+        # Handle VOICE MESSAGES - disabled for now
         if message.get("voice"):
+            await send_telegram_message(chat_id, "<i>Voice messages coming soon. Please type your message.</i>")
+            return
             await handle_voice_message(chat_id, telegram_id, user, message.get("voice"))
             return
         
