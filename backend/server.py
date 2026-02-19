@@ -467,11 +467,15 @@ def calculate_escalation_level(message_count: int, tier: str) -> int:
 def get_emotional_paywall_stage(user: dict) -> int:
     """
     Determine emotional paywall stage for free users.
-    Returns: 0 = normal, 8 = tension build, 9 = emotional hook, 10 = soft break
+    Returns: 0 = normal, 8 = tension build, 9 = emotional hook, 10 = soft break (ONCE only)
     """
     tier = user.get("tier", "free")
     if tier != "free":
         return 0
+    
+    # Check if user already hit paywall - don't trigger again
+    if user.get("hit_paywall", False):
+        return 11  # Special code meaning "already paywalled, block silently"
     
     message_count = user.get("lifetime_message_count", 0)
     bonus = user.get("bonus_messages", 0)
@@ -484,7 +488,7 @@ def get_emotional_paywall_stage(user: dict) -> int:
         return 8
     elif next_msg == effective_limit - 1:  # Message 9
         return 9
-    elif next_msg >= effective_limit:  # Message 10+
+    elif next_msg >= effective_limit:  # Message 10
         return 10
     return 0
 
