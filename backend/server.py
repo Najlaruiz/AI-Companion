@@ -1351,6 +1351,8 @@ async def send_companion_selection(chat_id: str, user: dict):
     """Send companion selection menu - sexy entrance"""
     tier = user.get("tier", "free")
     lang = user.get("language", "en")
+    telegram_id = user.get("telegram_id")
+    backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
     
     # Sexy intro messages per language
     intros = {
@@ -1365,10 +1367,10 @@ async def send_companion_selection(chat_id: str, user: dict):
         current = user.get("selected_character")
         char_info = CHARACTER_PROMPTS.get(current, {})
         jealousy_msgs = {
-            "en": f"She noticed you trying to leave...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Her')}</b> is yours.\n\n<i>VIP unlocks all companions.</i>",
-            "es": f"Ella notó que intentabas irte...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Ella')}</b> es tuya.\n\n<i>VIP desbloquea todas las compañeras.</i>",
-            "fr": f"Elle a remarqué que tu essayais de partir...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Elle')}</b> est à toi.\n\n<i>VIP débloque toutes les compagnes.</i>",
-            "ar": f"لاحظت أنك تحاول المغادرة...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'هي')}</b> لك.\n\n<i>VIP يفتح جميع الرفيقات.</i>"
+            "en": f"She noticed you trying to leave...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Her')}</b> is yours.",
+            "es": f"Ella notó que intentabas irte...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Ella')}</b> es tuya.",
+            "fr": f"Elle a remarqué que tu essayais de partir...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'Elle')}</b> est à toi.",
+            "ar": f"لاحظت أنك تحاول المغادرة...\n\n{char_info.get('emoji', '')} <b>{char_info.get('name', 'هي')}</b> لك."
         }
         await send_telegram_message(
             chat_id,
@@ -1376,7 +1378,7 @@ async def send_companion_selection(chat_id: str, user: dict):
             reply_markup={
                 "inline_keyboard": [
                     [{"text": f"Continue with {char_info.get('name', 'her')}", "callback_data": f"select_{current}"}],
-                    [{"text": "🔥 Unlock All – After Dark $39", "callback_data": "upgrade_vip"}]
+                    [{"text": "🔥 Unlock All – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}]
                 ]
             }
         )
@@ -1388,8 +1390,8 @@ async def send_companion_selection(chat_id: str, user: dict):
         reply_markup={
             "inline_keyboard": [
                 [{"text": "👑 Valeria – 32 – Elegant Dominant", "callback_data": "select_valeria"}],
-                [{"text": "🌙 Luna – 26 – Emotional Addictive", "callback_data": "select_luna"}],
-                [{"text": "🖤 Nyx – 29 – Dark Temptation", "callback_data": "select_nyx"}]
+                [{"text": "🌙 Luna – 26 – Emotional Romantic", "callback_data": "select_luna"}],
+                [{"text": "🖤 Nyx – 29 – Dark Temptress", "callback_data": "select_nyx"}]
             ]
         }
     )
