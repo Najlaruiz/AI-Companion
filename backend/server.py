@@ -1487,7 +1487,7 @@ async def handle_switch_request(chat_id: str, user: dict):
             f"{char_info.get('emoji', '')} {msg}\n\n🔥 <b>After Dark unlocks all companions.</b>",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "🔥 Unlock All – After Dark $39", "callback_data": "upgrade_vip"}
+                    {"text": "🔥 Unlock All – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
                 ]]
             }
         )
