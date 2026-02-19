@@ -1423,8 +1423,10 @@ async def send_status(chat_id: str, user: dict):
     await send_telegram_message(chat_id, status)
 
 async def send_upgrade_options(chat_id: str, user: dict):
-    """Send upgrade options"""
+    """Send upgrade options with DIRECT Stripe checkout URLs"""
     tier = user.get("tier", "free")
+    telegram_id = user.get("telegram_id")
+    backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
     
     if tier == "free":
         await send_telegram_message(
@@ -1432,8 +1434,8 @@ async def send_upgrade_options(chat_id: str, user: dict):
             "🔓 <b>Unlock More</b>",
             reply_markup={
                 "inline_keyboard": [
-                    [{"text": "🔒 Private Access – $19/mo", "callback_data": "upgrade_premium"}],
-                    [{"text": "🔥 After Dark Unlimited – $39/mo", "callback_data": "upgrade_vip"}]
+                    [{"text": "🔒 Private Access – $19", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}],
+                    [{"text": "🔥 After Dark – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}]
                 ]
             }
         )
@@ -1443,7 +1445,7 @@ async def send_upgrade_options(chat_id: str, user: dict):
             "🔥 <b>Go After Dark</b>\n\nUnlock voice + all companions.",
             reply_markup={
                 "inline_keyboard": [[
-                    {"text": "🔥 After Dark – $39/mo", "callback_data": "upgrade_vip"}
+                    {"text": "🔥 After Dark – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
                 ]]
             }
         )
