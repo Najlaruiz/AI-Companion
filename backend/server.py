@@ -1210,7 +1210,6 @@ async def handle_telegram_update(update: dict):
         
         # Send text response only (voice disabled for now)
         await send_telegram_message(chat_id, response)
-                await send_voice_message(chat_id, audio_data)
         
     except Exception as e:
         logger.error(f"Error in webhook handler: {e}")
