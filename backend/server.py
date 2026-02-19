@@ -1170,8 +1170,6 @@ async def handle_telegram_update(update: dict):
         if message.get("voice"):
             await send_telegram_message(chat_id, "<i>Voice messages coming soon. Please type your message.</i>")
             return
-            await handle_voice_message(chat_id, telegram_id, user, message.get("voice"))
-            return
         
         # Check if user has selected a companion
         if not user.get("selected_character"):
