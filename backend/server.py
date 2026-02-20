@@ -1371,7 +1371,8 @@ async def handle_telegram_update(update: dict):
                 f"{character['emoji']} <i>Unlock me to continue...</i>",
                 reply_markup={
                     "inline_keyboard": [
-                        [{"text": "🔓 Unlock – $19", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}]
+                        [{"text": "🔓 Unlock – $19", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}],
+                        [{"text": "🎁 Get +5 FREE (Invite Friends)", "callback_data": "show_referral"}]
                     ]
                 }
             )
