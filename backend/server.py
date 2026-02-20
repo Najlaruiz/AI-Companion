@@ -1506,6 +1506,26 @@ async def handle_callback(callback: dict):
             intro += char_info['welcome_script']
             
             await send_telegram_message(chat_id, intro)
+            
+            # Send quick tips with referral button
+            code = user.get("referral_code")
+            if not code:
+                code = str(uuid.uuid4())[:8]
+                await db.users.update_one({"telegram_id": telegram_id}, {"$set": {"referral_code": code}})
+            
+            await asyncio.sleep(1.5)
+            await send_telegram_message(
+                chat_id,
+                "💡 <b>Quick Tips:</b>\n\n"
+                "• You have <b>10 free messages</b> to try\n"
+                "• Type <code>/status</code> to check your messages\n"
+                "• Share with friends to get <b>+5 bonus messages</b>",
+                reply_markup={
+                    "inline_keyboard": [
+                        [{"text": "🎁 Share & Get +5 Free Messages", "callback_data": "show_referral"}]
+                    ]
+                }
+            )
         return
     
     # Upgrade callbacks - These still work as backup but direct URLs are preferred
