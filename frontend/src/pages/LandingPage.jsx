@@ -565,7 +565,7 @@ const LandingPage = () => {
           
           <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {characters.map((character, index) => (
-              <CharacterCard key={character.id} character={character} botLink={botLink} t={t} index={index} />
+              <CharacterCard key={character.id} character={character} botLink={botLink} t={t} lang={lang} index={index} />
             ))}
           </motion.div>
         </div>
