@@ -1620,14 +1620,43 @@ async def send_status(chat_id: str, user: dict):
     
     if tier == "free":
         remaining = max(0, (10 + bonus) - msg_count)
-        status += f"Messages: <b>{remaining} remaining</b>"
+        status += f"\n💬 Messages: <b>{msg_count}/10 used</b>\n"
+        status += f"📊 Remaining: <b>{remaining}</b>"
         if bonus > 0:
             status += f" <i>(+{bonus} bonus)</i>"
     else:
-        status += "Messages: <b>Unlimited</b>"
+        status += "\n💬 Messages: <b>Unlimited ∞</b>"
     
     if tier == "vip":
-        voice_status = "Enabled" if ELEVENLABS_API_KEY else "Coming Soon"
+        voice_pref = user.get("voice_preference", "natural")
+        status += f"\n🎤 Voice: <b>Enabled ({voice_pref})</b>"
+        status += "\n👑 Companions: <b>All Unlocked</b>"
+    
+    await send_telegram_message(chat_id, status)
+
+async def send_voice_settings(chat_id: str, user: dict):
+    """Send voice settings for VIP users"""
+    current = user.get("voice_preference", "natural")
+    
+    settings = {
+        "natural": "🎤 Natural (smooth, warm)",
+        "dominant": "👑 Dominant (commanding, firm)",
+        "whisper": "💋 Whisper (soft, intimate)"
+    }
+    
+    await send_telegram_message(
+        chat_id,
+        f"🎤 <b>Voice Settings</b>\n\n"
+        f"Current: <b>{settings.get(current, 'Natural')}</b>\n\n"
+        f"<i>Choose how she speaks to you:</i>",
+        reply_markup={
+            "inline_keyboard": [
+                [{"text": "🎤 Natural" + (" ✓" if current == "natural" else ""), "callback_data": "voice_natural"}],
+                [{"text": "👑 Dominant" + (" ✓" if current == "dominant" else ""), "callback_data": "voice_dominant"}],
+                [{"text": "💋 Whisper" + (" ✓" if current == "whisper" else ""), "callback_data": "voice_whisper"}]
+            ]
+        }
+    )
         status += f"\nVoice: <b>{voice_status}</b>"
         status += "\nCompanions: <b>All Unlocked</b>"
     
