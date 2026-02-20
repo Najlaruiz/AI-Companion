@@ -3,8 +3,8 @@
 ## Project Overview
 **Name:** Private After Dark  
 **Type:** Premium AI Fantasy Companion (+18 Adult)
-**Status:** Production Ready (v3.5.0)
-**Last Updated:** December 2025
+**Status:** Production Ready (v4.0.0)
+**Last Updated:** February 2026
 
 ## Core Product Vision
 This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
@@ -32,6 +32,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - **Sexual:** Dominant, commanding, makes him earn it
 - **Rhythm:** "Interesting..." / "Come closer." / "Prove it."
 - **Addiction:** Power - he craves her approval
+- **Moods:** commanding, teasing, intense, cold_then_hot, possessive, condescending_sexy
 
 ### 🌙 Luna (26) - Emotional Romantic
 - **Style:** Soft, emotional, vulnerable
@@ -39,6 +40,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - **Sexual:** Intimate, emotional connection first
 - **Rhythm:** "Can I tell you something?" / "I was thinking about you..."
 - **Addiction:** Emotional - he can't leave her
+- **Moods:** vulnerable, needy, dreamy, confessional, shy_then_bold, emotionally_raw
 
 ### 🖤 Nyx (29) - Dark Temptress
 - **Style:** Bold, provocative, challenging
@@ -46,6 +48,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - **Sexual:** Aggressive, dirty talk, rough
 - **Rhythm:** "Fresh meat." / "That all you got?" / "I dare you."
 - **Addiction:** Intensity - he becomes obsessed
+- **Moods:** dangerous, playful_dark, intense, unpredictable, challenging, mysteriously_suggestive
 
 ## Escalation System
 
@@ -65,10 +68,11 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - All 3 companions
 - Switch anytime
 
-## Payment Flow (FIXED)
-✅ All "Upgrade" buttons now use **direct Stripe URLs**
+## Payment Flow (VERIFIED)
+✅ All "Upgrade" buttons use **direct Stripe URLs**
 ✅ Clicking opens `checkout.stripe.com` directly
-✅ No redirect back to Telegram
+✅ /api/checkout/redirect endpoint creates Stripe sessions
+✅ /api/checkout/status/{session_id} verifies payment status
 ✅ Supports: Card, Apple Pay, Google Pay
 
 ## Voice System
@@ -76,21 +80,23 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - **STT:** OpenAI Whisper (VIP voice-to-voice)
 - **Styles:** Natural, Dominant, Whisper
 - **Languages:** EN/ES/FR/AR
-- **Contextual teasers** - Not generic lines
+- **Status:** Currently paused - focusing on text quality
 
 ## Multi-Language
 - Auto-detect user language
 - Respond in user's language
 - Character voices match language
 - Supported: English, Spanish, French, Arabic
+- RTL support for Arabic
 
-## Key Fixes in v3.5.0
-1. ✅ Payment buttons now direct to Stripe (not callbacks)
-2. ✅ Character personalities more distinct
-3. ✅ Voice teasers contextual (not generic)
-4. ✅ Emotional paywall with character-specific message
-5. ✅ Jealousy responses for locked companions
-6. ✅ Short responses (2-3 lines max)
+## Key Fixes in v4.0.0
+1. ✅ **Fixed frontend blank page** - CharacterCard missing 'lang' prop
+2. ✅ **Improved AI responses** - Anti-repetition system with mood variety
+3. ✅ **Payment flow verified** - Direct Stripe checkout working
+4. ✅ **Added checkout status endpoint** - /api/checkout/status/{session_id}
+5. ✅ **Fixed webhook URL** - Uses REACT_APP_BACKEND_URL for HTTPS
+6. ✅ **Character personalities** - 6 unique moods per character
+7. ✅ **Short responses** - 1-3 lines max, post-processed
 
 ## Bot Commands
 - `/start` - Language selection → Companion selection
@@ -98,7 +104,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - `/upgrade` - Direct Stripe checkout
 - `/referral` - Get referral link (+5 messages)
 - `/switch` - Change companion (VIP only)
-- `/voice` - Voice settings (VIP only)
+- `/voice` - Voice settings (paused)
 
 ## Referral System
 - Unique link per user: `t.me/MidnightDesireAi_bot?start=ref_CODE`
@@ -127,3 +133,26 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
   stripe_customer_id: String
 }
 ```
+
+## API Endpoints
+- `GET /api/` - API info
+- `GET /api/health` - Health check
+- `POST /api/webhook/telegram` - Telegram bot webhook
+- `POST /api/webhook/stripe` - Stripe payment webhook
+- `GET /api/checkout/redirect` - Create Stripe checkout & redirect
+- `GET /api/checkout/status/{session_id}` - Check payment status
+- `GET /api/telegram/info` - Get bot info
+- `POST /api/telegram/set-webhook` - Set Telegram webhook
+- `POST /api/reactivation/run` - Trigger user reactivation
+- `GET /api/reactivation/stats` - Reactivation statistics
+
+## Upcoming Tasks
+1. **Test Telegram bot flow** - User to verify /start, character selection, messaging
+2. **Improve AI personality** - Continue monitoring for robotic responses
+3. **Re-enable voice features** - Once text flow is stable
+
+## Future Tasks
+- Multi-character fantasy mode for VIP
+- Jealousy messages when switching
+- Simulated typing delays
+- Backend refactoring (server.py is monolithic)
