@@ -378,6 +378,9 @@ class TelegramUser(BaseModel):
     last_reactivation_sent: Optional[str] = None
     hit_paywall: bool = False  # Track if user hit message 10
     voice_preference: str = "natural"  # natural, dominant, whisper
+    # Fantasy mode (VIP multi-character)
+    fantasy_mode: bool = False
+    fantasy_chars: list = Field(default_factory=list)
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
