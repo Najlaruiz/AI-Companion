@@ -1359,7 +1359,7 @@ async def handle_callback(callback: dict):
     if data.startswith("lang_"):
         lang = data.replace("lang_", "")
         await update_user(telegram_id, {"language": lang})
-        await answer_callback_query(callback_id, f"Language set!")
+        await answer_callback_query(callback_id, "Language set!")
         # Now show companion selection
         await send_companion_selection(chat_id, user)
         return
