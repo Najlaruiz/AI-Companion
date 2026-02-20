@@ -1808,7 +1808,7 @@ Valeria: *grabs your chin* "He's mine tonight."
 Luna: *pouts* "But I wanted him first..."
 Nyx: *smirks* "Let's share him."
 
-LANGUAGE: Respond in {{"en": "English", "es": "Spanish", "fr": "French", "ar": "Arabic"}.get(language, "English")} only."""
+LANGUAGE: Respond in """ + {"en": "English", "es": "Spanish", "fr": "French", "ar": "Arabic"}.get(language, "English") + """ only."""
 
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
