@@ -1775,7 +1775,7 @@ async def send_fantasy_mode_selection(chat_id: str, user: dict):
             "inline_keyboard": [
                 [{"text": f"{CHARACTER_PROMPTS[other_chars[0]]['emoji']} Add {CHARACTER_PROMPTS[other_chars[0]]['name']}", "callback_data": f"fantasy_{current}_{other_chars[0]}"}],
                 [{"text": f"{CHARACTER_PROMPTS[other_chars[1]]['emoji']} Add {CHARACTER_PROMPTS[other_chars[1]]['name']}", "callback_data": f"fantasy_{current}_{other_chars[1]}"}],
-                [{"text": "👑👑👑 All Three", "callback_data": f"fantasy_all"}],
+                [{"text": "👑👑👑 All Three", "callback_data": "fantasy_all"}],
                 [{"text": "❌ Exit Fantasy", "callback_data": "fantasy_exit"}]
             ]
         }
