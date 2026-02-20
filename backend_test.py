@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 class PrivateAfterDarkAPITester:
-    def __init__(self, base_url="https://paywall-staging.preview.emergentagent.com"):
+    def __init__(self, base_url="https://private-staging.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
@@ -82,7 +82,7 @@ class PrivateAfterDarkAPITester:
         test_data = {
             "telegram_id": "123456789",
             "tier": "premium", 
-            "origin_url": "https://paywall-staging.preview.emergentagent.com"
+            "origin_url": "https://private-staging.preview.emergentagent.com"
         }
         return self.run_test(
             "Stripe checkout creation",

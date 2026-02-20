@@ -107,7 +107,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - Referrer notified on signup
 
 ## Deployment
-- **Landing:** https://paywall-staging.preview.emergentagent.com
+- **Landing:** https://private-staging.preview.emergentagent.com
 - **Bot:** @MidnightDesireAi_bot
 - **API:** /api/webhook/telegram, /api/checkout/redirect
 
