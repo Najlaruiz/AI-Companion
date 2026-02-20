@@ -1703,7 +1703,30 @@ async def send_status(chat_id: str, user: dict):
         status += f"\n🎤 Voice: <b>Enabled ({voice_pref})</b>"
         status += "\n👑 Companions: <b>All Unlocked</b>"
     
-    await send_telegram_message(chat_id, status)
+    # Get referral code
+    telegram_id = user.get("telegram_id")
+    code = user.get("referral_code")
+    if not code:
+        code = str(uuid.uuid4())[:8]
+        await db.users.update_one({"telegram_id": telegram_id}, {"$set": {"referral_code": code}})
+    
+    referral_count = user.get("referral_count", 0)
+    
+    # Add referral section
+    status += f"\n\n━━━━━━━━━━━━━━━━\n"
+    status += f"🎁 <b>Get +5 FREE messages!</b>\n"
+    status += f"👥 Friends invited: <b>{referral_count}</b>"
+    
+    # Send with Share button
+    await send_telegram_message(
+        chat_id, 
+        status,
+        reply_markup={
+            "inline_keyboard": [
+                [{"text": "📤 Share & Get +5 Messages", "callback_data": "show_referral"}]
+            ]
+        }
+    )
 
 async def send_voice_settings(chat_id: str, user: dict):
     """Send voice settings for VIP users"""
