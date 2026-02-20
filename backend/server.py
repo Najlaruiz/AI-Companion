@@ -1152,7 +1152,7 @@ RESPONSE FORMAT (STRICT):
         
         # Post-process: Ensure response is short and clean
         response = response.strip()
-        lines = [l.strip() for l in response.split('\n') if l.strip()]
+        lines = [line.strip() for line in response.split('\n') if line.strip()]
         if len(lines) > 3:
             response = '\n'.join(lines[:3])
         
