@@ -1566,6 +1566,12 @@ async def handle_callback(callback: dict):
                 await answer_callback_query(callback_id, "VIP only feature")
         return
     
+    # Show referral link callback
+    if data == "show_referral":
+        await answer_callback_query(callback_id)
+        await send_referral_info(chat_id, user)
+        return
+    
     # Fantasy mode callbacks - VIP ONLY
     if data.startswith("fantasy_"):
         tier = user.get("tier", "free")
