@@ -1657,10 +1657,6 @@ async def send_voice_settings(chat_id: str, user: dict):
             ]
         }
     )
-        status += f"\nVoice: <b>{voice_status}</b>"
-        status += "\nCompanions: <b>All Unlocked</b>"
-    
-    await send_telegram_message(chat_id, status)
 
 async def send_upgrade_options(chat_id: str, user: dict):
     """Send upgrade options with DIRECT Stripe checkout URLs"""
