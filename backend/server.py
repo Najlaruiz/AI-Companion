@@ -1293,14 +1293,40 @@ async def handle_telegram_update(update: dict):
             await handle_switch_request(chat_id, user)
             return
         
-        # /voice command - disabled for now
+        # /voice command - VIP ONLY
         if text == "/voice" or text.startswith("/voice "):
-            await send_telegram_message(chat_id, "<i>Voice features coming soon...</i>")
+            tier = user.get("tier", "free")
+            if tier != "vip":
+                backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+                await send_telegram_message(
+                    chat_id, 
+                    "🎤 <b>Voice Messages</b>\n\n<i>Voice features are exclusive to VIP members.</i>",
+                    reply_markup={
+                        "inline_keyboard": [[
+                            {"text": "🔥 Unlock Voice – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
+                        ]]
+                    }
+                )
+            else:
+                await send_voice_settings(chat_id, user)
             return
         
-        # Handle VOICE MESSAGES - disabled for now
+        # Handle VOICE MESSAGES from user - VIP ONLY
         if message.get("voice"):
-            await send_telegram_message(chat_id, "<i>Voice messages coming soon. Please type your message.</i>")
+            tier = user.get("tier", "free")
+            if tier != "vip":
+                backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+                await send_telegram_message(
+                    chat_id,
+                    "🎤 <i>I'd love to hear your voice...</i>\n\n<b>Upgrade to VIP for voice-to-voice.</b>",
+                    reply_markup={
+                        "inline_keyboard": [[
+                            {"text": "🔥 Unlock Voice – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
+                        ]]
+                    }
+                )
+            else:
+                await handle_voice_message(chat_id, telegram_id, user, message.get("voice"))
             return
         
         # Check if user has selected a companion
