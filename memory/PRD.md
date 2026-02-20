@@ -98,6 +98,15 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 6. ✅ **Character personalities** - 6 unique moods per character
 7. ✅ **Short responses** - 1-3 lines max, post-processed
 
+## Key Fixes in v4.1.0
+1. ✅ **NO LIMITS on content** - Completely uncensored for premium/VIP users
+2. ✅ **Each character unique** - Valeria=dominant, Luna=emotional, Nyx=aggressive
+3. ✅ **Typing indicator** - Shows "typing..." before AI responds (premium feel)
+4. ✅ **Simulated typing delay** - 1-2.5 second delay feels human
+5. ✅ **Referral link working** - /referral shows copyable link
+6. ✅ **10 free messages** - Test then pay system active
+7. ✅ **Girlfriend mode** - AI acts as devoted girlfriend, not assistant
+
 ## Bot Commands
 - `/start` - Language selection → Companion selection
 - `/status` - View tier & messages
