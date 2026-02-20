@@ -1311,6 +1311,26 @@ async def handle_telegram_update(update: dict):
                 await send_voice_settings(chat_id, user)
             return
         
+        # /fantasy command - Multi-character mode VIP ONLY
+        if text == "/fantasy":
+            tier = user.get("tier", "free")
+            if tier != "vip":
+                backend_url = os.environ.get('REACT_APP_BACKEND_URL', '')
+                await send_telegram_message(
+                    chat_id,
+                    "🔥 <b>Secret Fantasy Mode</b>\n\n"
+                    "<i>Two companions... at the same time.</i>\n\n"
+                    "This is a VIP-only experience.",
+                    reply_markup={
+                        "inline_keyboard": [[
+                            {"text": "🔥 Unlock Fantasy – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}
+                        ]]
+                    }
+                )
+            else:
+                await send_fantasy_mode_selection(chat_id, user)
+            return
+        
         # Handle VOICE MESSAGES from user - VIP ONLY
         if message.get("voice"):
             tier = user.get("tier", "free")
