@@ -1848,7 +1848,9 @@ async def get_telegram_info():
 async def set_telegram_webhook(request: Request):
     if not TELEGRAM_BOT_TOKEN:
         raise HTTPException(status_code=400, detail="No token")
-    webhook_url = f"{str(request.base_url).rstrip('/')}/api/webhook/telegram"
+    # Use the external URL from environment for webhook
+    backend_url = os.environ.get('REACT_APP_BACKEND_URL', str(request.base_url).rstrip('/'))
+    webhook_url = f"{backend_url}/api/webhook/telegram"
     async with httpx.AsyncClient() as http_client:
         response = await http_client.post(f"{TELEGRAM_API}/setWebhook", json={"url": webhook_url})
         return response.json()
