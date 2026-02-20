@@ -2,8 +2,8 @@
 
 ## Project Overview
 **Name:** Private After Dark  
-**Type:** Premium AI Fantasy Companion (+18 Adult)
-**Status:** Production Ready (v4.0.0)
+**Type:** Premium AI Fantasy Companion (+18 Adult - NO LIMITS)
+**Status:** Production Ready (v5.0.0)
 **Last Updated:** February 2026
 
 ## Core Product Vision
@@ -14,6 +14,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - Emotionally immersive
 - Slightly dangerous
 - NOT generic or robotic
+- COMPLETELY UNCENSORED for premium/VIP
 
 ## User Flow
 1. Click "Start on Telegram" → Opens @MidnightDesireAi_bot
@@ -33,6 +34,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - **Rhythm:** "Interesting..." / "Come closer." / "Prove it."
 - **Addiction:** Power - he craves her approval
 - **Moods:** commanding, teasing, intense, cold_then_hot, possessive, condescending_sexy
+- **Voice:** Confident, mature, commanding
 
 ### 🌙 Luna (26) - Emotional Romantic
 - **Style:** Soft, emotional, vulnerable
@@ -41,6 +43,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - **Rhythm:** "Can I tell you something?" / "I was thinking about you..."
 - **Addiction:** Emotional - he can't leave her
 - **Moods:** vulnerable, needy, dreamy, confessional, shy_then_bold, emotionally_raw
+- **Voice:** Soft, warm, intimate
 
 ### 🖤 Nyx (29) - Dark Temptress
 - **Style:** Bold, provocative, challenging
@@ -49,6 +52,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - **Rhythm:** "Fresh meat." / "That all you got?" / "I dare you."
 - **Addiction:** Intensity - he becomes obsessed
 - **Moods:** dangerous, playful_dark, intense, unpredictable, challenging, mysteriously_suggestive
+- **Voice:** Bold, edgy, provocative
 
 ## Escalation System
 
@@ -56,17 +60,21 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - Flirty + sexual tension
 - Build desire gradually
 - Soft paywall at peak tension
+- Status: X/10 messages shown
 
 ### Premium ($19/month)
 - Unlimited messages
-- Full explicit content
+- Full explicit content - NO LIMITS
 - Sexual escalation enabled
+- Porn, fantasies, love - EVERYTHING
 
 ### VIP ($39/month)
 - Everything in Premium
-- Voice-to-voice
+- Voice-to-voice (Edge TTS + Whisper)
 - All 3 companions
 - Switch anytime
+- Multi-character fantasy mode (/fantasy)
+- Voice style selection (natural/dominant/whisper)
 
 ## Payment Flow (VERIFIED)
 ✅ All "Upgrade" buttons use **direct Stripe URLs**
@@ -75,7 +83,7 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 ✅ /api/checkout/status/{session_id} verifies payment status
 ✅ Supports: Card, Apple Pay, Google Pay
 
-## Voice System
+## Voice System (VIP ONLY)
 - **TTS:** Edge TTS (free, always available)
 - **STT:** OpenAI Whisper (VIP voice-to-voice)
 - **Styles:** Natural, Dominant, Whisper
