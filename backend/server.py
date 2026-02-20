@@ -1627,18 +1627,32 @@ async def send_upgrade_options(chat_id: str, user: dict):
         )
 
 async def send_referral_info(chat_id: str, user: dict):
-    """Send referral information"""
-    code = user.get("referral_code", str(uuid.uuid4())[:8])
+    """Send referral information with shareable link"""
+    telegram_id = user.get("telegram_id")
+    
+    # Ensure user has a referral code
+    code = user.get("referral_code")
+    if not code:
+        code = str(uuid.uuid4())[:8]
+        await db.users.update_one(
+            {"telegram_id": telegram_id},
+            {"$set": {"referral_code": code}}
+        )
+    
     count = user.get("referral_count", 0)
     bonus = user.get("bonus_messages", 0)
     
+    # Send the referral link message
     await send_telegram_message(
         chat_id,
-        f"🎁 <b>Invite Friends</b>\n\n"
-        f"Your link:\n<code>https://t.me/MidnightDesireAi_bot?start=ref_{code}</code>\n\n"
-        f"✨ <b>+5 bonus messages</b> per friend!\n\n"
-        f"📊 Friends: <b>{count}</b>\n"
-        f"📊 Bonus earned: <b>{bonus}</b>"
+        f"🎁 <b>Share & Get Free Messages!</b>\n\n"
+        f"📲 <b>Your link:</b>\n"
+        f"<code>https://t.me/MidnightDesireAi_bot?start=ref_{code}</code>\n\n"
+        f"👆 <i>Tap to copy, then share with friends!</i>\n\n"
+        f"✨ <b>+5 bonus messages</b> for each friend who joins!\n\n"
+        f"━━━━━━━━━━━━━━━━\n"
+        f"👥 Friends joined: <b>{count}</b>\n"
+        f"🎁 Bonus messages: <b>{bonus}</b>"
     )
 
 async def handle_switch_request(chat_id: str, user: dict):
