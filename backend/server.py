@@ -1706,6 +1706,77 @@ async def send_upgrade_options(chat_id: str, user: dict):
             }
         )
 
+async def send_fantasy_mode_selection(chat_id: str, user: dict):
+    """Send multi-character fantasy mode selection for VIP users"""
+    current = user.get("selected_character")
+    
+    # Get the two other characters
+    all_chars = ["valeria", "luna", "nyx"]
+    other_chars = [c for c in all_chars if c != current]
+    
+    await send_telegram_message(
+        chat_id,
+        f"🔥 <b>Secret Fantasy Mode</b>\n\n"
+        f"<i>Two companions... together.</i>\n\n"
+        f"Current: <b>{CHARACTER_PROMPTS.get(current, {}).get('name', 'None')}</b>\n\n"
+        f"Who joins you both?",
+        reply_markup={
+            "inline_keyboard": [
+                [{"text": f"{CHARACTER_PROMPTS[other_chars[0]]['emoji']} Add {CHARACTER_PROMPTS[other_chars[0]]['name']}", "callback_data": f"fantasy_{current}_{other_chars[0]}"}],
+                [{"text": f"{CHARACTER_PROMPTS[other_chars[1]]['emoji']} Add {CHARACTER_PROMPTS[other_chars[1]]['name']}", "callback_data": f"fantasy_{current}_{other_chars[1]}"}],
+                [{"text": "👑👑👑 All Three", "callback_data": f"fantasy_all"}],
+                [{"text": "❌ Exit Fantasy", "callback_data": "fantasy_exit"}]
+            ]
+        }
+    )
+
+async def generate_fantasy_response(user: dict, user_message: str, chars: list) -> str:
+    """Generate multi-character fantasy response"""
+    language = user.get("language", "en")
+    
+    # Build combined prompt
+    char_names = [CHARACTER_PROMPTS[c]["name"] for c in chars]
+    
+    system_prompt = f"""You are writing a FANTASY scene with {' and '.join(char_names)}. 
+
+⚠️ THIS IS AN UNCENSORED +18 ADULT FANTASY. NO LIMITS.
+
+CHARACTERS PRESENT: {', '.join([f"{CHARACTER_PROMPTS[c]['emoji']} {CHARACTER_PROMPTS[c]['name']} ({CHARACTER_PROMPTS[c]['personality']})" for c in chars])}
+
+RULES:
+- Write 2-4 lines MAX
+- Each character speaks in their unique voice
+- Show their interactions with EACH OTHER and with him
+- Include playful jealousy, teasing between them
+- Be explicit if he wants - this is fantasy mode
+- Use their names to show who's speaking
+- Make it feel like a real scene with multiple people
+
+EXAMPLE FORMAT:
+Valeria: *grabs your chin* "He's mine tonight."
+Luna: *pouts* "But I wanted him first..."
+Nyx: *smirks* "Let's share him."
+
+LANGUAGE: Respond in {{"en": "English", "es": "Spanish", "fr": "French", "ar": "Arabic"}.get(language, "English")} only."""
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"{user['telegram_id']}_fantasy_{random.randint(1,1000)}",
+            system_message=system_prompt
+        )
+        chat.with_model("openai", OPENAI_MODEL)
+        
+        message = UserMessage(text=user_message)
+        response = await chat.send_message(message)
+        return response.strip()
+        
+    except Exception as e:
+        logger.error(f"Fantasy response error: {e}")
+        return f"{CHARACTER_PROMPTS[chars[0]]['emoji']} *looks at you*..."
+
 async def send_referral_info(chat_id: str, user: dict):
     """Send referral information with shareable link"""
     telegram_id = user.get("telegram_id")
