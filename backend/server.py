@@ -962,6 +962,17 @@ async def run_reactivation_job():
         return 0
 
 # ============ TELEGRAM FUNCTIONS ============
+async def send_typing_action(chat_id: str):
+    """Send typing indicator - premium feel"""
+    if not TELEGRAM_BOT_TOKEN:
+        return None
+    payload = {"chat_id": chat_id, "action": "typing"}
+    async with httpx.AsyncClient() as http_client:
+        try:
+            await http_client.post(f"{TELEGRAM_API}/sendChatAction", json=payload)
+        except Exception as e:
+            logger.error(f"Error sending typing action: {e}")
+
 async def send_telegram_message(chat_id: str, text: str, reply_markup: dict = None):
     if not TELEGRAM_BOT_TOKEN:
         return None
