@@ -1813,6 +1813,25 @@ async def checkout_redirect(telegram_id: str, tier: str, request: Request):
         logger.error(f"Checkout error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/checkout/status/{session_id}")
+async def checkout_status(session_id: str):
+    """Check payment status for a checkout session"""
+    try:
+        from emergentintegrations.payments.stripe.checkout import StripeCheckout
+        
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url="")
+        session = await stripe_checkout.retrieve_session(session_id)
+        
+        return {
+            "session_id": session_id,
+            "payment_status": session.payment_status if hasattr(session, 'payment_status') else "unknown",
+            "status": session.status if hasattr(session, 'status') else "unknown",
+            "metadata": session.metadata if hasattr(session, 'metadata') else {}
+        }
+    except Exception as e:
+        logger.error(f"Checkout status error: {e}")
+        return {"session_id": session_id, "payment_status": "unknown", "status": "error"}
+
 @api_router.get("/telegram/info")
 async def get_telegram_info():
     if not TELEGRAM_BOT_TOKEN:
