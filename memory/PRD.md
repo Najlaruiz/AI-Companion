@@ -88,7 +88,17 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - **STT:** OpenAI Whisper (VIP voice-to-voice)
 - **Styles:** Natural, Dominant, Whisper
 - **Languages:** EN/ES/FR/AR
-- **Status:** Currently paused - focusing on text quality
+- **Status:** ✅ ENABLED for VIP users
+- **Command:** /voice to change style
+
+## Multi-Character Fantasy Mode (VIP ONLY)
+- **Command:** /fantasy
+- **Options:** Two characters together OR all three
+- **Features:**
+  - Characters interact with EACH OTHER
+  - Show playful jealousy between them
+  - Fully explicit multi-character scenes
+- **Exit:** Select "Exit Fantasy" to return to single companion
 
 ## Multi-Language
 - Auto-detect user language
@@ -97,14 +107,13 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 - Supported: English, Spanish, French, Arabic
 - RTL support for Arabic
 
-## Key Fixes in v4.0.0
-1. ✅ **Fixed frontend blank page** - CharacterCard missing 'lang' prop
-2. ✅ **Improved AI responses** - Anti-repetition system with mood variety
-3. ✅ **Payment flow verified** - Direct Stripe checkout working
-4. ✅ **Added checkout status endpoint** - /api/checkout/status/{session_id}
-5. ✅ **Fixed webhook URL** - Uses REACT_APP_BACKEND_URL for HTTPS
-6. ✅ **Character personalities** - 6 unique moods per character
-7. ✅ **Short responses** - 1-3 lines max, post-processed
+## Key Fixes in v5.0.0 (Current)
+1. ✅ **Voice ENABLED** - VIP users get voice responses with every message
+2. ✅ **Fantasy mode** - /fantasy for multi-character scenes (VIP)
+3. ✅ **Referral link fixed** - Ensures code exists and shows copyable link
+4. ✅ **Status improved** - Shows X/10 message count for free users
+5. ✅ **Voice settings** - /voice command to change style (natural/dominant/whisper)
+6. ✅ **Fantasy callbacks** - Handle fantasy_exit, fantasy_all, fantasy_char1_char2
 
 ## Key Fixes in v4.1.0
 1. ✅ **NO LIMITS on content** - Completely uncensored for premium/VIP users
@@ -115,19 +124,30 @@ This is NOT a chatbot. This is a premium emotional + sexual AI companion system.
 6. ✅ **10 free messages** - Test then pay system active
 7. ✅ **Girlfriend mode** - AI acts as devoted girlfriend, not assistant
 
+## Key Fixes in v4.0.0
+1. ✅ **Fixed frontend blank page** - CharacterCard missing 'lang' prop
+2. ✅ **Improved AI responses** - Anti-repetition system with mood variety
+3. ✅ **Payment flow verified** - Direct Stripe checkout working
+4. ✅ **Added checkout status endpoint** - /api/checkout/status/{session_id}
+5. ✅ **Fixed webhook URL** - Uses REACT_APP_BACKEND_URL for HTTPS
+6. ✅ **Character personalities** - 6 unique moods per character
+7. ✅ **Short responses** - 1-3 lines max, post-processed
+
 ## Bot Commands
 - `/start` - Language selection → Companion selection
-- `/status` - View tier & messages
+- `/status` - View tier & messages (X/10 for free)
 - `/upgrade` - Direct Stripe checkout
-- `/referral` - Get referral link (+5 messages)
+- `/referral` - Get shareable referral link (+5 messages)
 - `/switch` - Change companion (VIP only)
-- `/voice` - Voice settings (paused)
+- `/voice` - Voice settings (VIP only)
+- `/fantasy` - Multi-character mode (VIP only)
 
 ## Referral System
 - Unique link per user: `t.me/MidnightDesireAi_bot?start=ref_CODE`
 - +5 bonus messages per referral
 - Tracked in database
 - Referrer notified on signup
+- Link shown with tap-to-copy format
 
 ## Deployment
 - **Landing:** https://private-staging.preview.emergentagent.com
