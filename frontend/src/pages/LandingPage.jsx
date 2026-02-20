@@ -763,7 +763,7 @@ const LandingPage = () => {
 };
 
 // Character Card with parallax effect
-const CharacterCard = ({ character, botLink, t, index }) => {
+const CharacterCard = ({ character, botLink, t, lang, index }) => {
   const Icon = character.icon;
   
   return (
