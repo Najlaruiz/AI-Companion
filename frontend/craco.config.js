@@ -1,35 +1,33 @@
 // craco.config.js
 const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
-// Check if we're in development/preview mode (not production build)
-// Craco sets NODE_ENV=development for start, NODE_ENV=production for build
+// Check if we're in development mode
 const isDevServer = process.env.NODE_ENV !== "production";
 
 // Environment variable overrides
 const config = {
   enableHealthCheck: process.env.ENABLE_HEALTH_CHECK === "true",
-  enableVisualEdits: isDevServer, // Only enable during dev server
+  https: process.env.HTTPS === "true", // set HTTPS=true in .env to enable HTTPS
+  port: process.env.PORT || 3000,
+  certPath: process.env.HTTPS_CERT || "./localhost+2.pem",
+  keyPath: process.env.HTTPS_KEY || "./localhost+2-key.pem",
 };
 
-// Conditionally load visual edits modules only in dev mode
-let setupDevServer;
-let babelMetadataPlugin;
-
-if (config.enableVisualEdits) {
-  setupDevServer = require("./plugins/visual-edits/dev-server-setup");
-  babelMetadataPlugin = require("./plugins/visual-edits/babel-metadata-plugin");
-}
-
-// Conditionally load health check modules only if enabled
 let WebpackHealthPlugin;
 let setupHealthEndpoints;
 let healthPluginInstance;
 
+// Load health check modules only if enabled
 if (config.enableHealthCheck) {
-  WebpackHealthPlugin = require("./plugins/health-check/webpack-health-plugin");
-  setupHealthEndpoints = require("./plugins/health-check/health-endpoints");
-  healthPluginInstance = new WebpackHealthPlugin();
+  try {
+    WebpackHealthPlugin = require("./plugins/health-check/webpack-health-plugin");
+    setupHealthEndpoints = require("./plugins/health-check/health-endpoints");
+    healthPluginInstance = new WebpackHealthPlugin();
+  } catch (err) {
+    console.warn("Health check plugins not found or not used:", err.message);
+  }
 }
 
 const webpackConfig = {
@@ -44,63 +42,61 @@ const webpackConfig = {
   },
   webpack: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      "@": path.resolve(__dirname, "src"),
     },
     configure: (webpackConfig) => {
-
-      // Add ignored patterns to reduce watched directories
-        webpackConfig.watchOptions = {
-          ...webpackConfig.watchOptions,
-          ignored: [
-            '**/node_modules/**',
-            '**/.git/**',
-            '**/build/**',
-            '**/dist/**',
-            '**/coverage/**',
-            '**/public/**',
+      // Reduce watched directories for performance
+      webpackConfig.watchOptions = {
+        ...webpackConfig.watchOptions,
+        ignored: [
+          "**/node_modules/**",
+          "**/.git/**",
+          "**/build/**",
+          "**/dist/**",
+          "**/coverage/**",
+          "**/public/**",
         ],
       };
 
-      // Add health check plugin to webpack if enabled
+      // Add health check plugin if enabled
       if (config.enableHealthCheck && healthPluginInstance) {
         webpackConfig.plugins.push(healthPluginInstance);
       }
+
       return webpackConfig;
     },
   },
-};
+  devServer: (devServerConfig) => {
+    // Enable HTTPS with mkcert if requested
+    if (config.https) {
+      devServerConfig.https = {
+        key: fs.readFileSync(path.resolve(__dirname, config.keyPath)),
+        cert: fs.readFileSync(path.resolve(__dirname, config.certPath)),
+      };
+    }
 
-// Only add babel metadata plugin during dev server
-if (config.enableVisualEdits && babelMetadataPlugin) {
-  webpackConfig.babel = {
-    plugins: [babelMetadataPlugin],
-  };
-}
+    // Listen on all network interfaces for public access
+    devServerConfig.host = "0.0.0.0";
+    devServerConfig.port = config.port;
+    devServerConfig.historyApiFallback = true; // SPA routing
 
-webpackConfig.devServer = (devServerConfig) => {
-  // Apply visual edits dev server setup only if enabled
-  if (config.enableVisualEdits && setupDevServer) {
-    devServerConfig = setupDevServer(devServerConfig);
-  }
+    // Add health check endpoints if enabled
+    if (config.enableHealthCheck && setupHealthEndpoints && healthPluginInstance) {
+      const originalSetupMiddlewares = devServerConfig.setupMiddlewares;
 
-  // Add health check endpoints if enabled
-  if (config.enableHealthCheck && setupHealthEndpoints && healthPluginInstance) {
-    const originalSetupMiddlewares = devServerConfig.setupMiddlewares;
+      devServerConfig.setupMiddlewares = (middlewares, devServer) => {
+        if (originalSetupMiddlewares) {
+          middlewares = originalSetupMiddlewares(middlewares, devServer);
+        }
 
-    devServerConfig.setupMiddlewares = (middlewares, devServer) => {
-      // Call original setup if exists
-      if (originalSetupMiddlewares) {
-        middlewares = originalSetupMiddlewares(middlewares, devServer);
-      }
+        setupHealthEndpoints(devServer, healthPluginInstance);
 
-      // Setup health endpoints
-      setupHealthEndpoints(devServer, healthPluginInstance);
+        return middlewares;
+      };
+    }
 
-      return middlewares;
-    };
-  }
-
-  return devServerConfig;
+    return devServerConfig;
+  },
 };
 
 module.exports = webpackConfig;
