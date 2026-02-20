@@ -1389,14 +1389,15 @@ async def handle_telegram_update(update: dict):
             paywall_msg = character.get("paywall_line", "I want to show you more...")
             await send_telegram_message(chat_id, f"{character['emoji']} {paywall_msg}")
             
-            # Send upgrade buttons with direct Stripe URLs
+            # Send upgrade buttons with direct Stripe URLs + referral option
             await send_telegram_message(
                 chat_id,
-                "🔓",
+                "🔓 <b>Continue with her...</b>",
                 reply_markup={
                     "inline_keyboard": [
                         [{"text": "🔒 Unlock Her – $19", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=premium"}],
-                        [{"text": "🔥 Full Access – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}]
+                        [{"text": "🔥 Full Access – $39", "url": f"{backend_url}/api/checkout/redirect?telegram_id={telegram_id}&tier=vip"}],
+                        [{"text": "🎁 Or Get +5 FREE (Invite Friends)", "callback_data": "show_referral"}]
                     ]
                 }
             )
