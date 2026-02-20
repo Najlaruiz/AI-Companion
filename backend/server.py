@@ -1741,8 +1741,8 @@ async def send_status(chat_id: str, user: dict):
     referral_count = user.get("referral_count", 0)
     
     # Add referral section
-    status += f"\n\n━━━━━━━━━━━━━━━━\n"
-    status += f"🎁 <b>Get +5 FREE messages!</b>\n"
+    status += "\n\n━━━━━━━━━━━━━━━━\n"
+    status += "🎁 <b>Get +5 FREE messages!</b>\n"
     status += f"👥 Friends invited: <b>{referral_count}</b>"
     
     # Send with Share button
