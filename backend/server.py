@@ -1360,6 +1360,12 @@ async def handle_telegram_update(update: dict):
         new_escalation = calculate_escalation_level(user.get("lifetime_message_count", 0) + 1, user.get("tier", "free"))
         await update_user(telegram_id, {"escalation_level": new_escalation})
         
+        # Show typing indicator for premium feel
+        await send_typing_action(chat_id)
+        
+        # Small delay to simulate typing (1-2 seconds)
+        await asyncio.sleep(random.uniform(1.0, 2.5))
+        
         # Generate AI response (with paywall stage for tension building at 8/9)
         response = await generate_ai_response(user, text, paywall_stage)
         
