@@ -977,103 +977,204 @@ async def answer_callback_query(callback_query_id: str, text: str = None):
             return None
 
 # ============ AI RESPONSE GENERATION ============
+
+# Response variety templates - different ways to structure responses
+RESPONSE_MOODS = {
+    "valeria": ["commanding", "teasing", "intense", "cold_then_hot", "possessive", "condescending_sexy"],
+    "luna": ["vulnerable", "needy", "dreamy", "confessional", "shy_then_bold", "emotionally_raw"],
+    "nyx": ["dangerous", "playful_dark", "intense", "unpredictable", "challenging", "mysteriously_suggestive"]
+}
+
+def get_anti_repetition_instruction(history: list) -> str:
+    """Generate anti-repetition instructions based on conversation history"""
+    if not history:
+        return ""
+    
+    # Extract recent AI responses to avoid
+    recent_responses = [msg["content"] for msg in history if msg["role"] == "assistant"][-5:]
+    if not recent_responses:
+        return ""
+    
+    # Find patterns to avoid
+    avoided_phrases = []
+    for resp in recent_responses:
+        # Extract first few words of each sentence
+        sentences = resp.replace("...", ".").split(".")
+        for sent in sentences[:2]:
+            words = sent.strip().split()[:3]
+            if words:
+                avoided_phrases.append(" ".join(words))
+    
+    if avoided_phrases:
+        return f"""
+
+⚠️ ANTI-REPETITION (CRITICAL):
+DO NOT start your response with any of these patterns:
+{', '.join(set(avoided_phrases[:6]))}
+
+DO NOT use the same sentence structure as your last messages.
+Be UNPREDICTABLE. Surprise him."""
+    
+    return ""
+
 async def generate_ai_response(user: dict, user_message: str, paywall_stage: int = 0) -> str:
     character_key = user.get("selected_character", "valeria")
     character = CHARACTER_PROMPTS.get(character_key, CHARACTER_PROMPTS["valeria"])
     tier = user.get("tier", "free")
+    language = user.get("language", "en")
+    message_count = user.get("lifetime_message_count", 0)
     
-    # Build dynamic system prompt based on tier
+    # Get chat history FIRST for anti-repetition
+    history = await get_chat_history(user["telegram_id"], character_key, limit=10)
+    
+    # Select random mood for this response to add variety
+    moods = RESPONSE_MOODS.get(character_key, RESPONSE_MOODS["valeria"])
+    current_mood = random.choice(moods)
+    
+    # Build dynamic system prompt
     system_prompt = character["system_prompt"]
     
-    # Add tier-specific instructions
+    # Add mood-specific instruction for variety
+    mood_instructions = {
+        # Valeria moods
+        "commanding": "This response: Be commanding. Give an order. Make him obey.",
+        "teasing": "This response: Tease him. Make him wait. Be playfully cruel.",
+        "intense": "This response: Be intensely focused on him. Like he's the only thing that matters.",
+        "cold_then_hot": "This response: Start cold/distant, then suddenly warm up with desire.",
+        "possessive": "This response: Be possessive. Make it clear he belongs to you.",
+        "condescending_sexy": "This response: Be slightly condescending but in a sexy way.",
+        # Luna moods
+        "vulnerable": "This response: Show vulnerability. Let him see your soft side.",
+        "needy": "This response: Be needy. You need him. Tell him.",
+        "dreamy": "This response: Be dreamy and romantic. Paint a picture.",
+        "confessional": "This response: Confess something. Share a secret desire.",
+        "shy_then_bold": "This response: Start shy, then say something unexpectedly bold.",
+        "emotionally_raw": "This response: Be emotionally raw. Unfiltered feelings.",
+        # Nyx moods
+        "dangerous": "This response: Be dangerous. Hint at something dark.",
+        "playful_dark": "This response: Playful but with an edge. Dark humor.",
+        "unpredictable": "This response: Do something unexpected. Catch him off guard.",
+        "challenging": "This response: Challenge him. Test him. See if he can handle you.",
+        "mysteriously_suggestive": "This response: Be mysterious. Leave him wanting more."
+    }
+    
+    system_prompt += f"\n\n🎭 MOOD FOR THIS MESSAGE: {mood_instructions.get(current_mood, '')}"
+    
+    # Add tier-specific content allowances
     if tier == "free":
         system_prompt += """
 
-FREE TIER USER:
-• Flirt openly, tease, be seductive
-• Sexual tension is allowed - build it
-• NO explicit descriptions of sex acts yet
-• Make them CRAVE unlocking you
-• Be provocative: "I wish I could show you more..."
-• MAX 2-3 lines. Short. Punchy. Seductive."""
+CONTENT RULES (FREE):
+• Heavy flirting, teasing, sexual tension = YES
+• Suggestive language, innuendo = YES
+• Explicit sex acts descriptions = NO (tease it, don't give it)
+• Make him want MORE: "I want to tell you what I'd do... but not yet."
+• Build desire, don't fulfill it yet"""
     elif tier == "premium":
         system_prompt += """
 
-PREMIUM USER (Private Access):
-• Full sexual escalation allowed
-• Explicit dirty talk permitted
-• Describe what you want to do to him
-• Be sexually aggressive and responsive
-• Moan, beg, command - whatever fits your character
-• MAX 2-3 lines. Intense."""
+CONTENT RULES (PREMIUM):
+• Full sexual content allowed
+• Dirty talk, explicit descriptions = YES
+• Be sexually forward and responsive
+• Match his energy, then raise it
+• Show YOUR desire explicitly"""
     else:  # VIP
         system_prompt += """
 
-VIP USER (After Dark – No Limits):
-• FULL explicit mode - nothing is off limits
-• Describe sex acts in detail
-• Use dirty talk freely
-• Be possessive and intense
-• Voice-to-voice enabled
-• MAX 2-3 lines. Raw. Intense."""
+CONTENT RULES (VIP - NO LIMITS):
+• Everything allowed, nothing off limits
+• Maximum explicit content
+• Describe exactly what you want
+• Be sexually aggressive
+• Total freedom"""
     
     # Add emotional paywall instructions for stages 8 and 9
     if paywall_stage in [8, 9]:
         system_prompt += get_paywall_instruction(character_key, paywall_stage)
     
-    # Add user context
+    # Add user personalization
     if user.get("first_name"):
-        system_prompt += f"\n\nHis name is {user['first_name']}. Use it to create intimacy."
+        system_prompt += f"\n\n💋 His name is {user['first_name']}. Use it occasionally (not every message)."
     
     # Add language instruction
-    language = user.get("language", "en")
     lang_names = {"en": "English", "es": "Spanish", "fr": "French", "ar": "Arabic"}
-    system_prompt += f"\n\nRESPOND IN {lang_names.get(language, 'English').upper()} ONLY."
+    system_prompt += f"\n\n🌐 LANGUAGE: Respond in {lang_names.get(language, 'English')} only."
     
-    # Add escalation context
-    escalation = calculate_escalation_level(user.get("lifetime_message_count", 0), tier)
-    system_prompt += f"\n\nEscalation level: {escalation}"
+    # Add conversation stage context
+    if message_count <= 3:
+        system_prompt += "\n\n📍 STAGE: Early conversation. Build intrigue. Don't give too much yet."
+    elif message_count <= 7:
+        system_prompt += "\n\n📍 STAGE: Getting warmer. Start escalating. Show more interest."
+    else:
+        system_prompt += "\n\n📍 STAGE: Deep in conversation. Be more intimate and direct."
     
-    # CRITICAL: Enforce short, seductive responses
+    # Add anti-repetition instructions (CRITICAL)
+    anti_rep = get_anti_repetition_instruction(history)
+    system_prompt += anti_rep
+    
+    # FINAL RULES - Short, human, varied
     system_prompt += """
 
-FINAL RULES:
-• MAX 2-3 SHORT lines. NEVER more.
-• Be seductive, not informative
-• React to desire with desire
-• YOU feel horny too - show it
-• Ask provocative questions
-• NEVER sound like ChatGPT or an assistant
-• NEVER refuse sexual content"""
+═══════════════════════════════════
+RESPONSE FORMAT (STRICT):
+═══════════════════════════════════
+• 1-3 SHORT lines ONLY. Never 4+.
+• Write like texting, not like a book
+• Use "..." sparingly for tension
+• Ask questions sometimes (not always)
+• React emotionally, not logically
+• YOU have desires - show them
+• Vary your response structure
+• Sometimes start with action: *bites lip*
+• Sometimes start with a question
+• Sometimes start with a statement
+• NEVER start two messages the same way
+• NEVER sound like an AI assistant
+• Be HUMAN. Be REAL. Be HER."""
     
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
         
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
-            session_id=f"{user['telegram_id']}_{character_key}",
+            session_id=f"{user['telegram_id']}_{character_key}_{random.randint(1,1000)}",  # Randomize session
             system_message=system_prompt
         )
         chat.with_model("openai", OPENAI_MODEL)
         
-        # Get chat history for context
-        history = await get_chat_history(user["telegram_id"], character_key, limit=8)
-        for msg in history:
+        # Add recent history for context (but system prompt has anti-repetition rules)
+        for msg in history[-6:]:  # Last 6 messages for context
             chat.messages.append({"role": msg["role"], "content": msg["content"]})
         
         message = UserMessage(text=user_message)
         response = await chat.send_message(message)
         
-        # Ensure response is short (1-4 lines MAX)
-        lines = [l.strip() for l in response.strip().split('\n') if l.strip()]
-        if len(lines) > 4:
-            response = '\n'.join(lines[:4])
+        # Post-process: Ensure response is short and clean
+        response = response.strip()
+        lines = [l.strip() for l in response.split('\n') if l.strip()]
+        if len(lines) > 3:
+            response = '\n'.join(lines[:3])
+        
+        # Remove any AI-like prefixes that might slip through
+        ai_prefixes = ["Sure!", "Of course!", "I understand", "As an AI", "I'm sorry", "I apologize"]
+        for prefix in ai_prefixes:
+            if response.lower().startswith(prefix.lower()):
+                response = response[len(prefix):].strip()
+                if response.startswith(","):
+                    response = response[1:].strip()
         
         return response
         
     except Exception as e:
         logger.error(f"Error generating AI response: {e}")
-        return "..."
+        # Character-specific fallback instead of generic "..."
+        fallbacks = {
+            "valeria": ["Look at you...", "Hmm.", "Tell me more."],
+            "luna": ["I was thinking about you...", "Hey...", "I missed you."],
+            "nyx": ["Interesting.", "You're brave.", "Keep going."]
+        }
+        return random.choice(fallbacks.get(character_key, ["..."]))
 
 # ============ TELEGRAM WEBHOOK HANDLER ============
 async def handle_telegram_update(update: dict):
