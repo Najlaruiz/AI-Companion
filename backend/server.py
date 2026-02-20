@@ -1556,6 +1556,47 @@ async def handle_callback(callback: dict):
                 await answer_callback_query(callback_id, "VIP only feature")
         return
     
+    # Fantasy mode callbacks - VIP ONLY
+    if data.startswith("fantasy_"):
+        tier = user.get("tier", "free")
+        if tier != "vip":
+            await answer_callback_query(callback_id, "VIP only feature")
+            return
+        
+        if data == "fantasy_exit":
+            await answer_callback_query(callback_id, "Fantasy mode ended")
+            await update_user(telegram_id, {"fantasy_mode": False, "fantasy_chars": []})
+            await send_telegram_message(chat_id, "🌙 <i>Back to your companion...</i>")
+            return
+        
+        if data == "fantasy_all":
+            await answer_callback_query(callback_id, "All three... bold choice! 🔥")
+            await update_user(telegram_id, {"fantasy_mode": True, "fantasy_chars": ["valeria", "luna", "nyx"]})
+            await send_telegram_message(
+                chat_id, 
+                "🔥🔥🔥 <b>ALL THREE COMPANIONS</b>\n\n"
+                "👑 <b>Valeria</b>, 🌙 <b>Luna</b>, and 🖤 <b>Nyx</b> are all here...\n\n"
+                "<i>*They look at each other, then at you*</i>\n\n"
+                "Say something to them..."
+            )
+            return
+        
+        # Two character mode: fantasy_char1_char2
+        parts = data.replace("fantasy_", "").split("_")
+        if len(parts) == 2:
+            char1, char2 = parts
+            await answer_callback_query(callback_id, f"{CHARACTER_PROMPTS[char1]['name']} & {CHARACTER_PROMPTS[char2]['name']}!")
+            await update_user(telegram_id, {"fantasy_mode": True, "fantasy_chars": [char1, char2]})
+            await send_telegram_message(
+                chat_id,
+                f"🔥 <b>{CHARACTER_PROMPTS[char1]['emoji']} {CHARACTER_PROMPTS[char1]['name']} & {CHARACTER_PROMPTS[char2]['emoji']} {CHARACTER_PROMPTS[char2]['name']}</b>\n\n"
+                f"<i>*They both turn to look at you*</i>\n\n"
+                f"{CHARACTER_PROMPTS[char1]['name']}: \"So... you wanted us both?\"\n"
+                f"{CHARACTER_PROMPTS[char2]['name']}: \"Interesting choice...\"\n\n"
+                f"Say something to them..."
+            )
+            return
+    
     await answer_callback_query(callback_id)
 
 async def send_language_selection(chat_id: str, user: dict):
