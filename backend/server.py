@@ -1416,6 +1416,14 @@ async def handle_telegram_update(update: dict):
         # Small delay to simulate typing (1-2 seconds)
         await asyncio.sleep(random.uniform(1.0, 2.5))
         
+        # Check for fantasy mode (VIP multi-character)
+        tier = user.get("tier", "free")
+        if tier == "vip" and user.get("fantasy_mode") and user.get("fantasy_chars"):
+            # Generate multi-character response
+            response = await generate_fantasy_response(user, text, user.get("fantasy_chars"))
+            await send_telegram_message(chat_id, response)
+            return
+        
         # Generate AI response (with paywall stage for tension building at 8/9)
         response = await generate_ai_response(user, text, paywall_stage)
         
@@ -1426,7 +1434,6 @@ async def handle_telegram_update(update: dict):
         await send_telegram_message(chat_id, response)
         
         # Send voice response for VIP users
-        tier = user.get("tier", "free")
         if tier == "vip":
             voice_style = user.get("voice_preference", "natural")
             language = user.get("language", "en")
