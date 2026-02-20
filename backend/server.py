@@ -2097,6 +2097,37 @@ async def get_telegram_info():
             return {"configured": True, "username": bot.get("username"), "link": f"https://t.me/{bot.get('username')}"}
         return {"configured": False}
 
+@api_router.get("/user/{telegram_id}")
+async def get_user_info(telegram_id: str):
+    """Get user info for debugging"""
+    user = await db.users.find_one({"telegram_id": telegram_id}, {"_id": 0})
+    if not user:
+        return {"error": "User not found"}
+    return {
+        "telegram_id": telegram_id,
+        "tier": user.get("tier", "free"),
+        "message_count": user.get("lifetime_message_count", 0),
+        "hit_paywall": user.get("hit_paywall", False),
+        "selected_character": user.get("selected_character"),
+        "referral_code": user.get("referral_code"),
+        "bonus_messages": user.get("bonus_messages", 0)
+    }
+
+@api_router.post("/user/{telegram_id}/reset")
+async def reset_user(telegram_id: str):
+    """Reset user for testing - clears message count and paywall"""
+    result = await db.users.update_one(
+        {"telegram_id": telegram_id},
+        {"$set": {
+            "lifetime_message_count": 0,
+            "hit_paywall": False,
+            "escalation_level": 1
+        }}
+    )
+    if result.modified_count > 0:
+        return {"success": True, "message": "User reset to 0 messages"}
+    return {"success": False, "message": "User not found or already reset"}
+
 @api_router.post("/telegram/set-webhook")
 async def set_telegram_webhook(request: Request):
     if not TELEGRAM_BOT_TOKEN:
